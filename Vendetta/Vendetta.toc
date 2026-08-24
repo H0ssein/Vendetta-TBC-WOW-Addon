@@ -1,0 +1,17 @@
+## Interface: 20504
+## Title: Vendetta
+## Notes: A tactical PvP revenge and bounty network system.
+## Author: Mr.Ajax
+## Version: 0.1.0
+## IconTexture: Interface\AddOns\Vendetta\Vendetta.tga
+## SavedVariables: VendettaDB
+
+Core\Init.lua
+Core\Utils.lua
+Modules\Network.lua
+Modules\Scanner.lua
+Modules\TrackerUI.lua
+Modules\DatabaseUI.lua
+Modules\OptionsUI.lua
+Modules\Minimap.lua
+Modules\UpdateCheck.lua
