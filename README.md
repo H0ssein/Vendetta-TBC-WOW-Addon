@@ -1,6 +1,6 @@
 # Vendetta 💀💰
 
-A tactical PvP revenge and bounty network system for World of Warcraft.
+A tactical PvP revenge and bounty network system for World of Warcraft: The Burning Crusade
 
 Vendetta tracks enemies, shares Wanted targets with trusted friends, and broadcasts Global Bounties to other addon users.
 
