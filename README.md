@@ -30,9 +30,11 @@ Both commands open the main database interface.
 
 Vendetta is designed to be simple, tactical, and deadly:
 
-1. **Track Your Rivals:** Whenever someone attacks or kills you, they are automatically added to your personal Database. You can also manually add players you want to keep an eye on.
-2. **Mark as Wanted (Private):** Want personal revenge? Mark a target with a Skull (Wanted). If any of your trusted friends (on your mutual Whitelist) cross paths with them, you will instantly receive a secret whisper with their exact location and layer.
-3. **Place a Bounty (Public):** Really hate someone? Put a Coin (Bounty) on their head along with a custom note! Anyone using the Vendetta addon will be notified when they spot your target. Once a bounty hunter executes them, you will receive a glorious kill report directly in your chat.
+1. **Auto-Combat Database:** Anyone you kill, or anyone who kills you, is automatically logged into your personal Database. You can also manually add players you want to keep an eye on.
+2. **Live Radar & Targeting Alerts:** Never get ganked by surprise again! Get instant on-screen and audio warnings the moment an enemy (or a friendly player) targets you in the open world or battlegrounds.
+3. **Mark as Wanted (Private Revenge):** Mark a target with a Skull (Wanted). If your trusted friends (on your mutual Whitelist) cross paths with them, you will receive a secret whisper with their exact location.
+4. **Place a Bounty (Public):** Put a Coin (Bounty) on someone's head with a custom note! Anyone using the Vendetta addon will be notified when they spot your target. Once a bounty hunter executes them, you will receive a glorious kill report directly in your chat.
+5. **Become a Bounty Hunter:** You don't just place bounties; you can hunt them! Enable Network features to track Wanted and Bounty targets placed by other players on your radar, track them down, and deliver the execution.
 
 ## License
 
