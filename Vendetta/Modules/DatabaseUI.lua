@@ -44,15 +44,18 @@ StaticPopupDialogs["VENDETTA_CONFIRM_DELETE"] = {
 }
 
 StaticPopupDialogs["VENDETTA_CONFIRM_CLEAR_BOUNTIES"] = {
-    text = "Are you sure you want to clear all Network Bounties?\n(Pending reports will NOT be deleted)",
+    text = "Are you sure you want to clear all Network Data\n(Pending reports will NOT be deleted)",
     button1 = "Yes", button2 = "No", timeout = 0, whileDead = true, hideOnEscape = true,
     OnAccept = function()
         if Ven.BountyBoard then
             for enemy, _ in pairs(Ven.BountyBoard) do Ven.BountyBoard[enemy] = nil; if Ven.netCache then Ven.netCache[enemy] = nil end end
         end
+        if Ven.WantedBoard then
+            for enemy, _ in pairs(Ven.WantedBoard) do Ven.WantedBoard[enemy] = nil; if Ven.netCache then Ven.netCache[enemy] = nil end end
+        end
         if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then Ven.RefreshDBView() end
         if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
-        print("|cFF00FFFF[Vendetta]|r All network bounties have been cleared.")
+        print("|cFF00FFFF[Vendetta]|r All network bounties and wanteds have been cleared.")
     end,
 }
 
@@ -504,7 +507,7 @@ end)
 
 local headers = { 
     {"", "armory", 10}, {"Name", "name", 30}, {"Lvl", "level", 145}, 
-    {"Kills", "kills", 185}, {"Deaths", "deaths", 235}, {"Note", "note", 295}, {"Shared By", "netOwner", 380} 
+    {"Kills", "kills", 185}, {"Deaths", "deaths", 235}, {"Note", "note", 295}, {"Wanted By", "netOwner", 380} 
 }
 for _, h in ipairs(headers) do
     local btn = CreateFrame("Button", nil, DBFrame)

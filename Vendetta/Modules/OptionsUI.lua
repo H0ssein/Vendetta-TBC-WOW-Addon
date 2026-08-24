@@ -33,6 +33,7 @@ local function CreateCheck(parent, text, dbKey, yOffset, defaultVal, tooltip)
         Ven.InitHeroDB()[dbKey] = self:GetChecked()
         if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
         if Ven.RefreshDBView and Ven.DBFrame and Ven.DBFrame:IsShown() then Ven.RefreshDBView() end
+        if Ven.UpdateMinimapButtonPosition then Ven.UpdateMinimapButtonPosition() end
     end)
     if tooltip then
         cb:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT"); GameTooltip:SetText(text); GameTooltip:AddLine(tooltip, 1, 1, 1, true); GameTooltip:Show() end)
@@ -205,7 +206,7 @@ CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyK
 CreateHeader(panel3, "Data Management", -295)
 local clearBountiesBtn = CreateFrame("Button", nil, panel3, "UIPanelButtonTemplate")
 clearBountiesBtn:SetSize(180, 22); clearBountiesBtn:SetPoint("TOPLEFT", 25, -315)
-clearBountiesBtn:SetText("Clear Network Bounties")
+clearBountiesBtn:SetText("Clear Network Data")
 clearBountiesBtn:SetScript("OnClick", function() StaticPopup_Show("VENDETTA_CONFIRM_CLEAR_BOUNTIES") end)
 
 CreateHeader(panel4, "General & UI Settings", -15)
@@ -213,6 +214,7 @@ CreateCheck(panel4, "Hide Tracker UI During Combat", "hideInCombat", -35, false)
 CreateCheck(panel4, "Enable Radar in Safe Zones (e.g. Cities)", "trackInSafeZones", -65, false)
 CreateCheck(panel4, "Ignore Kills/Deaths inside Battlegrounds", "ignoreInstKills", -95, true)
 CreateCheck(panel4, "Use Server Time (ST) for UI", "useServerTime", -125, true, "Display all times and dates according to Realm Server Time.")
+CreateCheck(panel4, "Hide Minimap Button Completely", "hideMinimapBtn", -155, false, "Hide the minimap button completely.")
 
 
 local wlFrame = CreateFrame("Frame", "Ven_WhitelistFrame", UIParent, "BackdropTemplate")
