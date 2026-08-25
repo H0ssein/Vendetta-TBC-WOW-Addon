@@ -229,24 +229,35 @@ optBtn:SetScript("OnClick", function() if Ven.OptionsFrame:IsShown() then Ven.Op
 optBtn:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_TOP"); GameTooltip:SetText("Options"); GameTooltip:Show() end)
 optBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
-local searchBox = CreateFrame("EditBox", "VendettaSearchBox", DBFrame, "InputBoxTemplate")
-searchBox:SetSize(120, 20); searchBox:SetPoint("TOPLEFT", 50, -35); searchBox:SetAutoFocus(false)
-searchBox:SetTextInsets(0, 16, 0, 0) 
+local searchBox = CreateFrame("EditBox", "VendettaSearchBox", DBFrame, "BackdropTemplate")
+searchBox:SetFontObject("GameFontHighlightSmall")
+searchBox:SetSize(160, 22); searchBox:SetPoint("TOPLEFT", 15, -35); searchBox:SetAutoFocus(false)
+searchBox:SetTextInsets(6, 20, 0, 0)
+searchBox:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8", edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+searchBox:SetBackdropColor(0, 0, 0, 0.5); searchBox:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+
+searchBox.placeholder = searchBox:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+searchBox.placeholder:SetPoint("LEFT", 6, 0)
+searchBox.placeholder:SetText("Search...")
 
 local clearSearchBtn = CreateFrame("Button", nil, searchBox)
-clearSearchBtn:SetSize(14, 14); clearSearchBtn:SetPoint("RIGHT", searchBox, "RIGHT", -2, 0)
+clearSearchBtn:SetSize(14, 14); clearSearchBtn:SetPoint("RIGHT", searchBox, "RIGHT", -4, 0)
 clearSearchBtn:SetNormalTexture("Interface\\FriendsFrame\\ClearBroadcastIcon"); clearSearchBtn:SetAlpha(0.6)
 clearSearchBtn:SetScript("OnEnter", function(self) self:SetAlpha(1.0) end)
 clearSearchBtn:SetScript("OnLeave", function(self) self:SetAlpha(0.6) end)
 clearSearchBtn:SetScript("OnClick", function() searchBox:SetText(""); searchBox:ClearFocus() end)
 clearSearchBtn:Hide()
 
-local searchLbl = DBFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-searchLbl:SetPoint("RIGHT", searchBox, "LEFT", -5, 0); searchLbl:SetText("Search:")
-searchLbl:SetShadowOffset(1, -1); searchLbl:SetShadowColor(0, 0, 0, 1)
-
-local filterBtn = CreateFrame("Button", "VendettaFilterBtn", DBFrame, "UIPanelButtonTemplate")
-filterBtn:SetSize(85, 22); filterBtn:SetPoint("LEFT", searchBox, "RIGHT", 5, 0); filterBtn:SetText("Filters")
+local filterBtn = CreateFrame("Button", "VendettaFilterBtn", DBFrame, "BackdropTemplate")
+filterBtn:SetSize(75, 22); filterBtn:SetPoint("LEFT", searchBox, "RIGHT", 10, 0)
+filterBtn:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8", edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+filterBtn:SetBackdropColor(0.15, 0.15, 0.15, 0.8); filterBtn:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+local filterBtnText = filterBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+filterBtnText:SetPoint("CENTER", 0, 0)
+filterBtn:SetFontString(filterBtnText)
+filterBtn:SetText("Filters")
+filterBtn:SetScript("OnEnter", function(self) self:SetBackdropColor(0.25, 0.25, 0.25, 0.9) end)
+filterBtn:SetScript("OnLeave", function(self) self:SetBackdropColor(0.15, 0.15, 0.15, 0.8) end)
 
 
 
@@ -505,7 +516,13 @@ function Ven.RefreshDBView()
 end
 
 searchBox:SetScript("OnTextChanged", function(self)
-    if self:GetText() == "" then clearSearchBtn:Hide() else clearSearchBtn:Show() end
+    if self:GetText() == "" then 
+        clearSearchBtn:Hide()
+        if self.placeholder then self.placeholder:Show() end
+    else 
+        clearSearchBtn:Show()
+        if self.placeholder then self.placeholder:Hide() end
+    end
     Ven.RefreshDBView()
 end)
 
