@@ -38,10 +38,75 @@ function Ven.GetClassIcon(classFile)
     return ""
 end
 
+function Ven.StyleFlatButton(btn)
+    btn:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8", edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+    btn:SetBackdropColor(0.15, 0.15, 0.15, 0.8); btn:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+    if not btn.flatText then
+        btn.flatText = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        btn.flatText:SetPoint("CENTER", 0, 0)
+        btn:SetFontString(btn.flatText)
+    end
+    btn:HookScript("OnEnter", function(self) self:SetBackdropColor(0.25, 0.25, 0.25, 0.9) end)
+    btn:HookScript("OnLeave", function(self) self:SetBackdropColor(0.15, 0.15, 0.15, 0.8) end)
+end
+
 function Ven.GetFactionIcon(faction)
     if faction == "Alliance" then return "|TInterface\\Icons\\INV_BannerPVP_02:14:14|t " elseif faction == "Horde" then return "|TInterface\\Icons\\INV_BannerPVP_01:14:14|t " end
     return "" 
 end
+
+local popup = CreateFrame("Frame", "VendettaCustomPopup", UIParent, "BackdropTemplate")
+popup:SetSize(350, 130); popup:SetPoint("CENTER", 0, 100)
+popup:SetFrameStrata("TOOLTIP")
+popup:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8", edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+popup:SetBackdropColor(0.05, 0.05, 0.05, 0.95); popup:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+popup:Hide()
+popup.text = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+popup.text:SetPoint("TOP", 0, -20); popup.text:SetWidth(330)
+
+popup.editBox = CreateFrame("EditBox", nil, popup, "BackdropTemplate")
+popup.editBox:SetSize(200, 24); popup.editBox:SetPoint("CENTER", 0, 5)
+popup.editBox:SetFontObject("GameFontHighlight")
+popup.editBox:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8", edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+popup.editBox:SetBackdropColor(0, 0, 0, 0.8); popup.editBox:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+popup.editBox:SetTextInsets(6, 6, 0, 0); popup.editBox:SetAutoFocus(false)
+
+popup.btn1 = CreateFrame("Button", nil, popup, "BackdropTemplate")
+popup.btn1:SetSize(100, 24); popup.btn1:SetPoint("BOTTOMLEFT", 60, 15)
+Ven.StyleFlatButton(popup.btn1)
+popup.btn2 = CreateFrame("Button", nil, popup, "BackdropTemplate")
+popup.btn2:SetSize(100, 24); popup.btn2:SetPoint("BOTTOMRIGHT", -60, 15)
+Ven.StyleFlatButton(popup.btn2)
+
+function Ven.ShowPopup(cfg, data)
+    popup.cfg = cfg; popup.data = data
+    popup.text:SetText(string.format(cfg.text, data or ""))
+    popup.btn1:SetText(cfg.button1 or "Yes"); popup.btn2:SetText(cfg.button2 or "No")
+    
+    if cfg.hasEditBox then
+        popup.editBox:Show(); popup.editBox:SetText("")
+        if cfg.maxLetters then popup.editBox:SetMaxLetters(cfg.maxLetters) else popup.editBox:SetMaxLetters(255) end
+        if cfg.OnShow then cfg.OnShow(popup, data) end
+        popup.editBox:SetFocus()
+        popup.btn1:SetPoint("BOTTOMLEFT", 60, 15); popup.btn2:SetPoint("BOTTOMRIGHT", -60, 15)
+    else
+        popup.editBox:Hide()
+        popup.btn1:SetPoint("BOTTOMLEFT", 60, 25); popup.btn2:SetPoint("BOTTOMRIGHT", -60, 25)
+    end
+    popup:Show()
+end
+
+popup.btn1:SetScript("OnClick", function()
+    local val = popup.editBox:IsShown() and popup.editBox:GetText() or nil
+    if popup.cfg and popup.cfg.OnAccept then popup.cfg.OnAccept(popup, popup.data, val) end
+    popup:Hide()
+end)
+popup.btn2:SetScript("OnClick", function()
+    if popup.cfg and popup.cfg.OnCancel then popup.cfg.OnCancel(popup, popup.data) end
+    popup:Hide()
+end)
+popup.editBox:SetScript("OnEscapePressed", function(self) popup:Hide() end)
+popup.editBox:SetScript("OnEnterPressed", function(self) popup.btn1:Click() end)
 
 function Ven.GetEffectiveTrackerMode()
     local db = Ven.InitHeroDB(); local inInstance, instanceType = IsInInstance()

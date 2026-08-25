@@ -30,8 +30,9 @@ local function ShowCopyBox(text)
     Ven.QuickCopy:Show()
 end
 
-StaticPopupDialogs["VENDETTA_CONFIRM_DELETE"] = {
-    text = "Delete '%s'?", button1 = "Yes", button2 = "No", timeout = 0, whileDead = true, hideOnEscape = true,
+Ven.Popups = Ven.Popups or {}
+Ven.Popups["VENDETTA_CONFIRM_DELETE"] = {
+    text = "Delete '%s'?", button1 = "Yes", button2 = "No",
     OnAccept = function(self, data)
         for realm, realmData in pairs(VendettaDB) do
             if realm ~= "MyHeroes" then 
@@ -44,9 +45,9 @@ StaticPopupDialogs["VENDETTA_CONFIRM_DELETE"] = {
     end,
 }
 
-StaticPopupDialogs["VENDETTA_CONFIRM_CLEAR_BOUNTIES"] = {
+Ven.Popups["VENDETTA_CONFIRM_CLEAR_BOUNTIES"] = {
     text = "Are you sure you want to clear all Network Data\n(Pending reports will NOT be deleted)",
-    button1 = "Yes", button2 = "No", timeout = 0, whileDead = true, hideOnEscape = true,
+    button1 = "Yes", button2 = "No",
     OnAccept = function()
         if Ven.BountyBoard then
             for enemy, _ in pairs(Ven.BountyBoard) do Ven.BountyBoard[enemy] = nil; if Ven.netCache then Ven.netCache[enemy] = nil end end
@@ -60,27 +61,21 @@ StaticPopupDialogs["VENDETTA_CONFIRM_CLEAR_BOUNTIES"] = {
     end,
 }
 
-StaticPopupDialogs["VENDETTA_SET_NOTE"] = {
-    text = "Set note for '%s' (Max 15 chars):", button1 = "Save", button2 = "Cancel", hasEditBox = true, timeout = 0, whileDead = true, hideOnEscape = true,
+Ven.Popups["VENDETTA_SET_NOTE"] = {
+    text = "Set note for '%s' (Max 15 chars):", button1 = "Save", button2 = "Cancel", hasEditBox = true, maxLetters = 15,
     OnShow = function(self, data)
-        local editBox = _G[self:GetName().."EditBox"]
-        if editBox then 
-            editBox:SetMaxLetters(15); editBox:SetText("")
-            local rName = GetRealmName() or "Unknown"
-            if VendettaDB[rName] then
-                for heroName, enemies in pairs(VendettaDB[rName]) do
-                    if not reservedKeys[heroName] and type(enemies) == "table" and enemies[data] and enemies[data].note then
-                        editBox:SetText(string.sub(enemies[data].note, 1, 15)); break
-                    end
+        local rName = GetRealmName() or "Unknown"
+        if VendettaDB[rName] then
+            for heroName, enemies in pairs(VendettaDB[rName]) do
+                if not reservedKeys[heroName] and type(enemies) == "table" and enemies[data] and enemies[data].note then
+                    self.editBox:SetText(string.sub(enemies[data].note, 1, 15)); break
                 end
             end
-            editBox:SetFocus()
         end
     end,
-    OnAccept = function(self, data)
-        local editBox = _G[self:GetName().."EditBox"]
-        if editBox and data then
-            local rName = GetRealmName() or "Unknown"; local newNote = string.sub(editBox:GetText() or "", 1, 15) 
+    OnAccept = function(self, data, inputStr)
+        if inputStr and data then
+            local rName = GetRealmName() or "Unknown"; local newNote = string.sub(inputStr, 1, 15) 
             local db = Ven.InitHeroDB()
             if db.showAccountWide then 
                 for heroName, enemies in pairs(VendettaDB[rName]) do 
@@ -95,41 +90,15 @@ StaticPopupDialogs["VENDETTA_SET_NOTE"] = {
             end
             if Ven.DBFrame:IsShown() then Ven.RefreshDBView() end
         end
-    end,
-    EditBoxOnEnterPressed = function(self)
-        local dialog = self:GetParent(); local data = dialog.data; 
-        if data then
-            local newNote = string.sub(self:GetText() or "", 1, 15); local rName = GetRealmName() or "Unknown"
-            local db = Ven.InitHeroDB()
-            if db.showAccountWide then 
-                for heroName, enemies in pairs(VendettaDB[rName]) do 
-                    if not reservedKeys[heroName] and type(enemies) == "table" and enemies[data] then enemies[data].note = newNote end 
-                end 
-            end
-            if not db[data] then
-                local pc = Ven.playerCache[data] or Ven.SyncPlayerDataFromOtherHeroes(data) or {}
-                db[data] = {kills=0, deaths=0, level=pc.level or "?", class=pc.class or "?", classFile=pc.classFile, race=pc.race or "?", faction=pc.faction or "?", note=newNote, bountyNote="", isWanted=false, isBounty=false, timeAdded=time(), lastCombat=0}
-            else
-                db[data].note = newNote
-            end
-            if Ven.DBFrame:IsShown() then Ven.RefreshDBView() end
-        end
-        dialog:Hide()
     end,
 }
 
-StaticPopupDialogs["VENDETTA_SET_BOUNTY"] = {
+Ven.Popups["VENDETTA_SET_BOUNTY"] = {
     text = "Set Bounty Note for '%s'\n(Max 15 chars):", 
-    button1 = "Save", button2 = "Cancel",
-    hasEditBox = true, timeout = 0, whileDead = true, hideOnEscape = true,
-    OnShow = function(self, data)
-        local editBox = _G[self:GetName().."EditBox"]
-        if editBox then editBox:SetMaxLetters(15); editBox:SetText(""); editBox:SetFocus() end
-    end,
-    OnAccept = function(self, data)
-        local editBox = _G[self:GetName().."EditBox"]
-        if editBox and data then
-            local rName = GetRealmName() or "Unknown"; local newNote = string.sub(editBox:GetText() or "", 1, 15); local tAdded = time()
+    button1 = "Save", button2 = "Cancel", hasEditBox = true, maxLetters = 15,
+    OnAccept = function(self, data, inputStr)
+        if inputStr and data then
+            local rName = GetRealmName() or "Unknown"; local newNote = string.sub(inputStr, 1, 15); local tAdded = time()
             local db = Ven.InitHeroDB()
             if db.showAccountWide then
                 for heroName, enemies in pairs(VendettaDB[rName]) do 
@@ -149,38 +118,13 @@ StaticPopupDialogs["VENDETTA_SET_BOUNTY"] = {
             if Ven.DBFrame:IsShown() then Ven.RefreshDBView() end; if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
         end
     end,
-    EditBoxOnEnterPressed = function(self)
-        local dialog = self:GetParent(); local data = dialog.data;
-        if data then
-            local newNote = string.sub(self:GetText() or "", 1, 15); local tAdded = time(); local db = Ven.InitHeroDB(); local rName = GetRealmName() or "Unknown"
-            if db.showAccountWide then
-                for heroName, enemies in pairs(VendettaDB[rName]) do 
-                    if not reservedKeys[heroName] and type(enemies) == "table" and enemies[data] then 
-                        enemies[data].isBounty = true; enemies[data].bountyNote = newNote; enemies[data].bountySince = tAdded
-                    end 
-                end 
-            end
-            if not db[data] then
-                local pc = Ven.playerCache[data] or Ven.SyncPlayerDataFromOtherHeroes(data) or {}
-                db[data] = {kills=0, deaths=0, level=pc.level or "?", class=pc.class or "?", classFile=pc.classFile, race=pc.race or "?", faction=pc.faction or "?", note="", bountyNote=newNote, isWanted=false, isBounty=true, bountySince=tAdded, timeAdded=time(), lastCombat=0}
-            else
-                db[data].isBounty = true; db[data].bountyNote = newNote; db[data].bountySince = tAdded
-            end
-            local _, myClass = UnitClass("player")
-            if Ven.Broadcast then Ven.Broadcast("BOUNTY", data, db[data].faction or "?", db[data].level or "?", db[data].classFile or "?", db[data].race or "?", newNote, myClass) end
-            if Ven.DBFrame:IsShown() then Ven.RefreshDBView() end; if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
-        end
-        dialog:Hide()
-    end,
 }
 
-StaticPopupDialogs["VENDETTA_ADD_PLAYER"] = {
-    text = "Enter player name:", button1 = "Add", button2 = "Cancel", hasEditBox = true, timeout = 0, whileDead = true, hideOnEscape = true,
-    OnShow = function(self) local editBox = _G[self:GetName().."EditBox"]; if editBox then editBox:SetText(""); editBox:SetFocus() end end,
-    OnAccept = function(self)
-        local editBox = _G[self:GetName().."EditBox"]
-        if editBox then
-            local name = editBox:GetText()
+Ven.Popups["VENDETTA_ADD_PLAYER"] = {
+    text = "Enter player name:", button1 = "Add", button2 = "Cancel", hasEditBox = true,
+    OnAccept = function(self, data, inputStr)
+        if inputStr then
+            local name = inputStr
             if name and name ~= "" then
                 name = string.upper(string.sub(name, 1, 1)) .. string.lower(string.sub(name, 2)); local db = Ven.InitHeroDB(); local tAdded = time()
                 if not db[name] then
@@ -190,18 +134,6 @@ StaticPopupDialogs["VENDETTA_ADD_PLAYER"] = {
                 if Ven.DBFrame:IsShown() then Ven.RefreshDBView() end
             end
         end
-    end,
-    EditBoxOnEnterPressed = function(self)
-        local dialog = self:GetParent(); local name = self:GetText()
-        if name and name ~= "" then
-            name = string.upper(string.sub(name, 1, 1)) .. string.lower(string.sub(name, 2)); local db = Ven.InitHeroDB(); local tAdded = time()
-            if not db[name] then
-                local s = Ven.SyncPlayerDataFromOtherHeroes(name) or Ven.playerCache[name] or {}
-                db[name] = {kills=0, deaths=0, level=s.level or "?", class=s.class or "?", classFile=s.classFile, race=s.race or "?", faction=s.faction or "?", note=s.note or "", isWanted=false, isBounty=false, timeAdded=tAdded, lastCombat=0}
-            else db[name].timeAdded = tAdded end
-            if Ven.DBFrame:IsShown() then Ven.RefreshDBView() end
-        end
-        dialog:Hide()
     end,
 }
 
@@ -343,9 +275,10 @@ scrollFrame:SetScript("OnMouseWheel", HandleScroll)
 local bLine = DBFrame:CreateTexture(nil, "BACKGROUND")
 bLine:SetSize(550, 1); bLine:SetPoint("BOTTOM", 0, 40); bLine:SetColorTexture(0.3, 0.3, 0.3, 0.5)
 
-local addPlayerBtn = CreateFrame("Button", nil, DBFrame, "UIPanelButtonTemplate")
+local addPlayerBtn = CreateFrame("Button", nil, DBFrame, "BackdropTemplate")
 addPlayerBtn:SetSize(80, 22); addPlayerBtn:SetPoint("BOTTOMRIGHT", -15, 12)
-addPlayerBtn:SetText("Add Player"); addPlayerBtn:SetScript("OnClick", function() StaticPopup_Show("VENDETTA_ADD_PLAYER") end)
+Ven.StyleFlatButton(addPlayerBtn)
+addPlayerBtn:SetText("Add Player"); addPlayerBtn:SetScript("OnClick", function() Ven.ShowPopup(Ven.Popups["VENDETTA_ADD_PLAYER"]) end)
 
 DBFrame:SetScript("OnShow", function() currentSort = "lastCombat"; sortAsc = false; Ven.RefreshDBView() end)
 
@@ -573,7 +506,7 @@ for i=1, 10 do
 
     r.noteBtn = CreateFrame("Button", nil, r); r.noteBtn:SetSize(16, 16); r.noteBtn:SetPoint("LEFT", 440, 0)
     r.noteBtn:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-Up"); r.noteBtn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
-    r.noteBtn:SetScript("OnClick", function(self) StaticPopup_Show("VENDETTA_SET_NOTE", self:GetParent().playerName, nil, self:GetParent().playerName) end)
+    r.noteBtn:SetScript("OnClick", function(self) Ven.ShowPopup(Ven.Popups["VENDETTA_SET_NOTE"], self:GetParent().playerName) end)
     r.noteBtn:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT"); GameTooltip:SetText("Edit Personal Note"); GameTooltip:Show() end)
     r.noteBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
@@ -637,14 +570,14 @@ for i=1, 10 do
             if db[n] then db[n].isBounty = false; db[n].bountyNote = nil; db[n].bountySince = nil end
             if Ven.Broadcast then Ven.Broadcast("UNBOUNTY", n) end
             Ven.RefreshDBView(); if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
-        else StaticPopup_Show("VENDETTA_SET_BOUNTY", n, nil, n) end
+        else Ven.ShowPopup(Ven.Popups["VENDETTA_SET_BOUNTY"], n) end
     end)
     r.bountyBtn:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT"); GameTooltip:SetText("Set/Remove Bounty (Shared to Network)"); GameTooltip:Show() end)
     r.bountyBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     r.deleteBtn = CreateFrame("Button", nil, r); r.deleteBtn:SetSize(16, 16); r.deleteBtn:SetPoint("LEFT", 500, 0)
     r.deleteBtn:SetNormalTexture("Interface\\BUTTONS\\UI-GroupLoot-Pass-Up"); r.deleteBtn:SetHighlightTexture("Interface\\BUTTONS\\UI-GroupLoot-Pass-Highlight", "ADD")
-    r.deleteBtn:SetScript("OnClick", function(self) StaticPopup_Show("VENDETTA_CONFIRM_DELETE", self:GetParent().playerName, nil, self:GetParent().playerName) end)
+    r.deleteBtn:SetScript("OnClick", function(self) Ven.ShowPopup(Ven.Popups["VENDETTA_CONFIRM_DELETE"], self:GetParent().playerName) end)
     r.deleteBtn:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT"); GameTooltip:SetText("Delete Player"); GameTooltip:Show() end)
     r.deleteBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 

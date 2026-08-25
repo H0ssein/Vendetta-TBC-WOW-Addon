@@ -43,15 +43,19 @@ local function CreateCheck(parent, text, dbKey, yOffset, defaultVal, tooltip)
 end
 
 local tabs = {}
+local currentTab = 1
 local function CreateTab(id, name, width, xOffset)
-    local btn = CreateFrame("Button", nil, f)
+    local btn = CreateFrame("Button", nil, f, "BackdropTemplate")
     btn:SetSize(width, 26); btn:SetPoint("TOPLEFT", xOffset, -40)
-    local bg = btn:CreateTexture(nil, "BACKGROUND"); bg:SetAllPoints(); btn.bg = bg
-    local txt = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal"); txt:SetPoint("CENTER")
-    txt:SetText(name); txt:SetShadowOffset(1, -1); txt:SetShadowColor(0, 0, 0, 1); btn.txt = txt
+    btn:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8", edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+    
+    local txt = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    txt:SetPoint("CENTER", 0, 0); txt:SetText(name); btn.flatText = txt
+    
     local panel = CreateFrame("Frame", nil, f)
     panel:SetPoint("TOPLEFT", 0, -70); panel:SetPoint("BOTTOMRIGHT", 0, 0); panel:Hide()
-    tabs[id] = {btn = btn, bg = bg, txt = txt, panel = panel}
+    
+    tabs[id] = {btn = btn, panel = panel}
     return panel
 end
 
@@ -59,10 +63,24 @@ local panel1 = CreateTab(1, "Target Tracking", 100, 12); local panel2 = CreateTa
 local panel3 = CreateTab(3, "Bounties", 110, 208); local panel4 = CreateTab(4, "General", 80, 321)
 
 local function SelectTab(id)
-    for i=1, 4 do tabs[i].panel:Hide(); tabs[i].bg:SetColorTexture(0.15, 0.15, 0.15, 0.5); tabs[i].txt:SetTextColor(0.5, 0.5, 0.5) end
-    tabs[id].panel:Show(); tabs[id].bg:SetColorTexture(0.4, 0.1, 0.1, 0.9); tabs[id].txt:SetTextColor(1, 0.82, 0)
+    currentTab = id
+    for i=1, 4 do 
+        tabs[i].panel:Hide()
+        tabs[i].btn:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+        tabs[i].btn:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+        tabs[i].btn.flatText:SetTextColor(0.6, 0.6, 0.6) 
+    end
+    tabs[id].panel:Show()
+    tabs[id].btn:SetBackdropColor(0.2, 0.2, 0.2, 0.9)
+    tabs[id].btn:SetBackdropBorderColor(0.5, 0.5, 0.5, 0.9)
+    tabs[id].btn.flatText:SetTextColor(1, 1, 1)
 end
-for i=1, 4 do tabs[i].btn:SetScript("OnClick", function() SelectTab(i) end) end; SelectTab(1)
+for i=1, 4 do 
+    tabs[i].btn:SetScript("OnClick", function() SelectTab(i) end)
+    tabs[i].btn:SetScript("OnEnter", function(self) if currentTab ~= i then self:SetBackdropColor(0.15, 0.15, 0.15, 0.9) end end)
+    tabs[i].btn:SetScript("OnLeave", function(self) if currentTab ~= i then self:SetBackdropColor(0.1, 0.1, 0.1, 0.8) end end)
+end
+SelectTab(1)
 
 local divLine = f:CreateTexture(nil, "BACKGROUND")
 divLine:SetSize(400, 1); divLine:SetPoint("TOP", 0, -68); divLine:SetColorTexture(0.4, 0.4, 0.4, 0.7)
@@ -191,18 +209,20 @@ CreateCheck(panel3, "Enable Bounty Network", "enableNetwork", -35, false)
 CreateCheck(panel3, "Track Bounties", "trackNetworkBounties", -65, true)
 CreateCheck(panel3, "Track Whitelist Wanteds", "trackNetworkWanteds", -95, true)
 
-local openWlBtn = CreateFrame("Button", nil, panel3, "UIPanelButtonTemplate")
+local openWlBtn = CreateFrame("Button", nil, panel3, "BackdropTemplate")
 openWlBtn:SetSize(150, 22); openWlBtn:SetPoint("TOPLEFT", 25, -125)
+Ven.StyleFlatButton(openWlBtn)
 openWlBtn:SetText("Manage Whitelist")
 
 CreateHeader(panel3, "Audio Alerts", -190)
 CreateSoundDrop(panel3, "Network Bounty Spotted:", "bountySpottedSoundIdx", "bountySpottedForceBG", -215, 4, Ven.soundList)
 CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyKillForceBG", -255, 3, Ven.killSoundList)
 CreateHeader(panel3, "Data Management", -295)
-local clearBountiesBtn = CreateFrame("Button", nil, panel3, "UIPanelButtonTemplate")
+local clearBountiesBtn = CreateFrame("Button", nil, panel3, "BackdropTemplate")
 clearBountiesBtn:SetSize(180, 22); clearBountiesBtn:SetPoint("TOPLEFT", 25, -315)
+Ven.StyleFlatButton(clearBountiesBtn)
 clearBountiesBtn:SetText("Clear Network Data")
-clearBountiesBtn:SetScript("OnClick", function() StaticPopup_Show("VENDETTA_CONFIRM_CLEAR_BOUNTIES") end)
+clearBountiesBtn:SetScript("OnClick", function() Ven.ShowPopup(Ven.Popups["VENDETTA_CONFIRM_CLEAR_BOUNTIES"]) end)
 
 CreateHeader(panel4, "General & UI Settings", -15)
 CreateCheck(panel4, "Hide Tracker UI During Combat", "hideInCombat", -35, false)
@@ -242,8 +262,10 @@ wlNoteBox:SetMaxLetters(15)
 local wlNoteLbl = wlFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 wlNoteLbl:SetPoint("BOTTOMLEFT", wlNoteBox, "TOPLEFT", 0, 3); wlNoteLbl:SetText("Note (Max 15):")
 
-local wlAddBtn = CreateFrame("Button", nil, wlFrame, "UIPanelButtonTemplate")
-wlAddBtn:SetSize(50, 22); wlAddBtn:SetPoint("LEFT", wlNoteBox, "RIGHT", 10, 0); wlAddBtn:SetText("Add")
+local wlAddBtn = CreateFrame("Button", nil, wlFrame, "BackdropTemplate")
+wlAddBtn:SetSize(50, 22); wlAddBtn:SetPoint("LEFT", wlNoteBox, "RIGHT", 10, 0)
+Ven.StyleFlatButton(wlAddBtn)
+wlAddBtn:SetText("Add")
 
 local wlDiv = wlFrame:CreateTexture(nil, "BACKGROUND")
 wlDiv:SetSize(270, 1); wlDiv:SetPoint("TOP", 0, -75); wlDiv:SetColorTexture(0.4, 0.4, 0.4, 0.7)
