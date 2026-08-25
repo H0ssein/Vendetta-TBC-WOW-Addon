@@ -188,8 +188,8 @@ CreateSoundDrop(panel2, "Wanted Player Spotted:", "wantedSoundIdx", "wantedForce
 CreateSoundDrop(panel2, "Wanted Player Killed:", "wantedKillSoundIdx", "wantedKillForceBG", -170, 3, Ven.killSoundList)
 
 CreateHeader(panel3, "Bounty Network", -15)
-CreateCheck(panel3, "Enable Bounty Network (Share & Receive)", "enableNetwork", -35, false)
-CreateCheck(panel3, "Hunt Mode (Show Network Bounties on Radar)", "huntMode", -65, false)
+CreateCheck(panel3, "Enable Bounty Network", "enableNetwork", -35, false)
+CreateCheck(panel3, "Hunt Mode (Track Network Bounties on Radar)", "huntMode", -65, false)
 
 CreateHeader(panel3, "Security", -105)
 local wlTitle = panel3:CreateFontString(nil, "OVERLAY", "GameFontNormal")

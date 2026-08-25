@@ -184,7 +184,7 @@ function Ven.ShowPlayerTooltip(ownerFrame, playerName)
             table.sort(netWanteds, function(a, b) return a.name < b.name end)
         end
         if #netWanteds > 0 then
-            GameTooltip:AddLine("Shared Wanted By:", 1, 1, 1)
+            GameTooltip:AddLine("Wanted By:", 1, 1, 1)
             for i = 1, math.min(3, #netWanteds) do
                 local oName = netWanteds[i].name; local oNote = netWanteds[i].note
                 local oColor = Ven.GetClassColor(Ven.SenderClasses[oName]) or "|cFF00FFFF"
