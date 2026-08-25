@@ -66,7 +66,9 @@ local function RegisterKill(enemyName, enemyGUID)
     end
     
     local inInst = IsInInstance()
-    if db.enableNetwork and not inInst and Ven.BountyBoard and Ven.BountyBoard[enemyName] then
+    local isNetBounty = Ven.BountyBoard and Ven.BountyBoard[enemyName]
+    local isNetWanted = Ven.WantedBoard and Ven.WantedBoard[enemyName]
+    if db.enableNetwork and not inInst and (isNetBounty or isNetWanted) then
         if not playedKillSound then
             local bkIdx, bkForce = db.bountyKillSoundIdx or 2, db.bountyKillForceBG or false
             if bkIdx == 2 then local rIdx = math.random(3, #Ven.killSoundList); Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, bkForce)
