@@ -400,8 +400,18 @@ function Ven.RefreshDBView()
             if sortAsc then return vA < vB else return vA > vB end 
         else
             local vA, vB = a[currentSort], b[currentSort]
+            if currentSort == "netOwner" then 
+                vA = vA or a.netOwnerWanted; vB = vB or b.netOwnerWanted 
+            elseif currentSort == "note" then
+                if not vA or vA == "" then vA = a.netNote end
+                if not vB or vB == "" then vB = b.netNote end
+            end
             if vA == nil then vA = "" end; if vB == nil then vB = "" end
             if type(vA) ~= type(vB) then vA = tostring(vA); vB = tostring(vB) end
+            
+            if vA == "" and vB ~= "" then return false end
+            if vB == "" and vA ~= "" then return true end
+            
             if vA == vB then return a.name < b.name end
             if sortAsc then return vA < vB else return vA > vB end 
         end
