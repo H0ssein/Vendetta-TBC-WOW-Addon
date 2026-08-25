@@ -2,7 +2,8 @@ local addonName, Ven = ...
 
 local reservedKeys = {
     NetworkBounties = true, NetworkCache = true,
-    NetworkWanteds = true, SenderClasses = true, PendingBounties = true
+    NetworkWanteds = true, SenderClasses = true, PendingBounties = true,
+    whitelistData = true
 }
 
 local function HandleScroll(self, delta)
@@ -376,7 +377,7 @@ function Ven.RefreshDBView()
         merged[n].lastCombat = math.max(maxCombat, merged[n].lastCombat or 0); merged[n].timeAdded = math.max(Ven.ParseOldTime(d.timeAdded), merged[n].timeAdded or 0)
     end
 
-    if db.showPersonalData then for n, d in pairs(db) do if type(d) == "table" then InsertToMerged(n, d) end end end
+    if db.showPersonalData then for n, d in pairs(db) do if type(d) == "table" and not reservedKeys[n] then InsertToMerged(n, d) end end end
     if db.showAccountWide then
         for realm, rData in pairs(VendettaDB) do 
             if realm ~= "MyHeroes" then 
