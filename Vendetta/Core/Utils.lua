@@ -87,13 +87,20 @@ function Ven.ShowPopup(cfg, data)
         popup.editBox:Show(); popup.editBox:SetText("")
         if cfg.maxLetters then popup.editBox:SetMaxLetters(cfg.maxLetters) else popup.editBox:SetMaxLetters(255) end
         if cfg.OnShow then cfg.OnShow(popup, data) end
-        popup.editBox:SetFocus()
         popup.btn1:SetPoint("BOTTOMLEFT", 60, 15); popup.btn2:SetPoint("BOTTOMRIGHT", -60, 15)
     else
         popup.editBox:Hide()
         popup.btn1:SetPoint("BOTTOMLEFT", 60, 25); popup.btn2:SetPoint("BOTTOMRIGHT", -60, 25)
     end
     popup:Show()
+    
+    if cfg.hasEditBox then
+        popup.editBox:SetFocus()
+        C_Timer.After(0.01, function()
+            local t = popup.editBox:GetText() or ""
+            popup.editBox:SetCursorPosition(string.len(t))
+        end)
+    end
 end
 
 popup.btn1:SetScript("OnClick", function()

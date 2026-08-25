@@ -395,7 +395,7 @@ function Ven.RefreshDBView()
                     local tA, tB = Ven.ParseOldTime(a.timeAdded), Ven.ParseOldTime(b.timeAdded)
                     if tA ~= tB then if sortAsc then return tA < tB else return tA > tB end end
                 end
-                return a.name < b.name 
+                return string.lower(a.name) < string.lower(b.name) 
             end
             if sortAsc then return vA < vB else return vA > vB end 
         else
@@ -412,8 +412,14 @@ function Ven.RefreshDBView()
             if vA == "" and vB ~= "" then return false end
             if vB == "" and vA ~= "" then return true end
             
-            if vA == vB then return a.name < b.name end
-            if sortAsc then return vA < vB else return vA > vB end 
+            if type(vA) == "string" and type(vB) == "string" then
+                local vALow, vBLow = string.lower(vA), string.lower(vB)
+                if vALow == vBLow then return string.lower(a.name) < string.lower(b.name) end
+                if sortAsc then return vALow < vBLow else return vALow > vBLow end
+            else
+                if vA == vB then return string.lower(a.name) < string.lower(b.name) end
+                if sortAsc then return vA < vB else return vA > vB end 
+            end
         end
     end)
     
@@ -479,7 +485,13 @@ for _, h in ipairs(headers) do
     btn:SetSize(40, 20); btn:SetPoint("TOPLEFT", h[3], -85)
     local txt = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal"); txt:SetPoint("LEFT"); txt:SetText(h[1])
     txt:SetShadowOffset(1, -1); txt:SetShadowColor(0, 0, 0, 1)
-    btn:SetScript("OnClick", function() if h[2] == "armory" then return end; if currentSort == h[2] then sortAsc = not sortAsc else currentSort = h[2]; sortAsc = false end; Ven.RefreshDBView() end)
+    btn:SetScript("OnClick", function() 
+        if h[2] == "armory" then return end; 
+        if currentSort == h[2] then sortAsc = not sortAsc else currentSort = h[2]; sortAsc = false end; 
+        local bar = _G["VendettaDBScrollFrameScrollBar"]
+        if bar then bar:SetValue(0) end
+        Ven.RefreshDBView() 
+    end)
     if h[2] == "netOwner" then Ven.DBFrame.wantedByHeader = btn; btn:Hide() end
 end
 
@@ -497,7 +509,7 @@ for i=1, 10 do
     r.name:SetShadowOffset(1, -1); r.name:SetShadowColor(0, 0, 0, 1)
     
     r.nameBtn = CreateFrame("Button", nil, r)
-    r.nameBtn:SetSize(110, 20); r.nameBtn:SetPoint("LEFT", 20, 0)
+    r.nameBtn:SetSize(75, 20); r.nameBtn:SetPoint("LEFT", 55, 0)
     r.nameBtn:SetScript("OnClick", function() if r.playerName and Ven.ShowCopyBox then Ven.ShowCopyBox(r.playerName) end end)
     r.nameBtn:SetScript("OnEnter", function() GameTooltip:SetOwner(r.nameBtn, "ANCHOR_RIGHT"); GameTooltip:SetText("Copy Name"); GameTooltip:Show() end)
     r.nameBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
