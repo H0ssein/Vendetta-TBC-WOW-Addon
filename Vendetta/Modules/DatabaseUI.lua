@@ -441,6 +441,10 @@ function Ven.RefreshDBView()
     table.sort(sortedDB, function(a, b) 
         if currentSort == "lastCombat" or currentSort == "timeAdded" or currentSort == "lastSeenTime" or currentSort == "wantedSince" or currentSort == "bountySince" then
             local vA, vB = Ven.ParseOldTime(a[currentSort]), Ven.ParseOldTime(b[currentSort])
+            if currentSort == "lastCombat" then
+                if vA == 0 then vA = Ven.ParseOldTime(a.timeAdded) or 0 end
+                if vB == 0 then vB = Ven.ParseOldTime(b.timeAdded) or 0 end
+            end
             if vA == vB then 
                 if currentSort == "lastCombat" then
                     local tA, tB = Ven.ParseOldTime(a.timeAdded), Ven.ParseOldTime(b.timeAdded)
