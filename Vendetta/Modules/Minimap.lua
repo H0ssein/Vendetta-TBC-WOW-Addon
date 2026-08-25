@@ -17,13 +17,17 @@ Ven_MinimapBorder:SetSize(54, 54)
 Ven_MinimapBorder:SetPoint("TOPLEFT", 0, 0)
 
 local function UpdateMinimapButtonPosition()
+    if Ven_MinimapBtn:GetParent() ~= Minimap then return end
+    
     local db = Ven.InitHeroDB()
     local angle = db.minimapAngle or 45
     local radius = 80
     local x = math.cos(math.rad(angle)) * radius
     local y = math.sin(math.rad(angle)) * radius
+    Ven_MinimapBtn:ClearAllPoints()
     Ven_MinimapBtn:SetPoint("CENTER", Minimap, "CENTER", x, y)
-    if db.hideMinimapBtn or (not Minimap:IsMouseOver() and not Ven_MinimapBtn:IsMouseOver()) then
+    
+    if db.hideMinimapBtn then
         Ven_MinimapBtn:Hide()
     else
         Ven_MinimapBtn:Show()
@@ -35,6 +39,7 @@ Ven_MinimapBtn:RegisterForClicks("AnyUp")
 Ven_MinimapBtn:RegisterForDrag("LeftButton")
 
 Ven_MinimapBtn:SetScript("OnDragStart", function(self)
+    if self:GetParent() ~= Minimap then return end
     self:LockHighlight()
     self:SetScript("OnUpdate", function()
         local cx, cy = GetCursorPosition()
@@ -62,10 +67,10 @@ Ven_MinimapBtn:SetScript("OnEnter", function(self)
     GameTooltip:AddLine("|cFFFFFFFFShift + Right Click:|r Toggle Normal/Wanted Mode")
     GameTooltip:Show()
 end)
-Ven_MinimapBtn:SetScript("OnLeave", function(self) GameTooltip:Hide(); if not Minimap:IsMouseOver() then self:Hide() end end)
 
-Minimap:HookScript("OnEnter", function() if not Ven.InitHeroDB().hideMinimapBtn then Ven_MinimapBtn:Show() end end)
-Minimap:HookScript("OnLeave", function() if not Ven_MinimapBtn:IsMouseOver() then Ven_MinimapBtn:Hide() end end)
+Ven_MinimapBtn:SetScript("OnLeave", function(self)
+    GameTooltip:Hide()
+end)
 
 Ven_MinimapBtn:SetScript("OnClick", function(self, button)
     local db = Ven.InitHeroDB()
