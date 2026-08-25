@@ -154,17 +154,39 @@ function Ven.UpdateTrackerUI()
     local isPvPInst = inInstance and (instanceType == "pvp" or instanceType == "arena")
     local isPvEInst = inInstance and (instanceType == "party" or instanceType == "raid" or instanceType == "scenario")
 
-    if isPvEInst or Ven.isTrackerHidden or (db.hideInCombat and InCombatLockdown()) then f:Hide(); return end
+    if isPvEInst or Ven.isTrackerHidden then 
+        if not InCombatLockdown() then f:Hide() end
+        return 
+    end
+    if db.hideInCombat and InCombatLockdown() then return end
 
     local showWanteds = (not inInstance and db.trackWantedsWorld ~= false) or (isPvPInst and db.trackWantedsInst ~= false)
     local showEnemies = (not inInstance and db.trackTargetsWorld ~= false) or (isPvPInst and db.trackTargetsInst ~= false)
     local showAllies  = (not inInstance and db.trackAlliesWorld == true) or (isPvPInst and db.trackAlliesInst == true)
 
-    if not showWanteds and not showEnemies and not showAllies and not db.huntMode then f:Hide(); return end
+    if not showWanteds and not showEnemies and not showAllies and not db.huntMode then 
+        if not InCombatLockdown() then f:Hide() end
+        return 
+    end
 
     local currentTick = GetTime()
     for name, data in pairs(Ven.activeTargets) do 
         if not data.isTargetingMe and (currentTick - data.lastSeen > 60) then Ven.activeTargets[name] = nil end 
+    end
+
+    if InCombatLockdown() then
+        for i = 1, 8 do
+            local r = rows[i]
+            if r:IsShown() and r.targetName and not r.isWantedType then
+                local vData = Ven.activeTargets[r.targetName]
+                if vData then
+                    local timeSinceSeen = currentTick - vData.lastSeen
+                    r.timerText = vData.isTargetingMe and "|cFF00FF00(Active)|r" or "|cFF888888("..math.floor(60 - timeSinceSeen).."s)|r"
+                end
+            end
+        end
+        f:GetScript("OnSizeChanged")(f)
+        return
     end
 
     local wList, tList = {}, {}

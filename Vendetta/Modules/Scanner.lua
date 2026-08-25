@@ -105,7 +105,7 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
         if Ven.CombatBlocker then Ven.CombatBlocker:Show() end
         if Ven.InitHeroDB().hideInCombat then
             if Ven.DBFrame and Ven.DBFrame:IsShown() then wasDBVisibleBeforeCombat = true; Ven.DBFrame:Hide() end
-            if Ven.TrackerFrame then Ven.TrackerFrame:Hide() end; if Ven.QuickCopy then Ven.QuickCopy:Hide() end
+            if Ven.TrackerFrame and not InCombatLockdown() then Ven.TrackerFrame:Hide() end; if Ven.QuickCopy then Ven.QuickCopy:Hide() end
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         if Ven.CombatBlocker then Ven.CombatBlocker:Hide() end
