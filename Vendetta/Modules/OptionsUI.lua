@@ -55,8 +55,8 @@ local function CreateTab(id, name, width, xOffset)
     return panel
 end
 
-local panel1 = CreateTab(1, "Incoming Targets", 100, 12); local panel2 = CreateTab(2, "Wanted List", 90, 115)
-local panel3 = CreateTab(3, "Bounty Network", 110, 208); local panel4 = CreateTab(4, "General", 80, 321)
+local panel1 = CreateTab(1, "Target Tracking", 100, 12); local panel2 = CreateTab(2, "Wanteds", 90, 115)
+local panel3 = CreateTab(3, "Bounties", 110, 208); local panel4 = CreateTab(4, "General", 80, 321)
 
 local function SelectTab(id)
     for i=1, 4 do tabs[i].panel:Hide(); tabs[i].bg:SetColorTexture(0.15, 0.15, 0.15, 0.5); tabs[i].txt:SetTextColor(0.5, 0.5, 0.5) end
@@ -171,14 +171,13 @@ end
 
 CreateHeader(panel1, "Radar Settings", -15)
 CreateCheck(panel1, "Track Enemies Targeting You (Open World)", "trackTargetsWorld", -35, true)
-CreateCheck(panel1, "Track Friendly Players Targeting You", "trackAlliesWorld", -65, false)
-CreateHeader(panel1, "Battlegrounds & Arenas", -105)
-CreateCheck(panel1, "Track Enemies Targeting You", "trackTargetsInst", -125, true)
-CreateCheck(panel1, "Track Friendly Players Targeting You", "trackAlliesInst", -155, false)
-CreateCheck(panel1, "Include Party/Raid Members", "trackGroupMembers", -185, false)
-CreateHeader(panel1, "Audio Alerts", -230)
-CreateSoundDrop(panel1, "Enemy Targeting You:", "targetSoundIdx", "targetForceBG", -255, 2, Ven.soundList)
-CreateSoundDrop(panel1, "Friendly Targeting You:", "friendlySoundIdx", "friendlyForceBG", -295, 14, Ven.soundList)
+CreateCheck(panel1, "Track Friendly Players Targeting You (Open World)", "trackAlliesWorld", -65, false)
+CreateCheck(panel1, "Track Enemies Targeting You (Battlegrounds & Arenas)", "trackTargetsInst", -95, true)
+CreateCheck(panel1, "Track Friendly Players Targeting You (Battlegrounds & Arenas)", "trackAlliesInst", -125, false)
+CreateCheck(panel1, "Include Party/Raid Members", "trackGroupMembers", -155, false)
+CreateHeader(panel1, "Audio Alerts", -195)
+CreateSoundDrop(panel1, "Enemy Targeting You:", "targetSoundIdx", "targetForceBG", -220, 2, Ven.soundList)
+CreateSoundDrop(panel1, "Friendly Targeting You:", "friendlySoundIdx", "friendlyForceBG", -260, 14, Ven.soundList)
 
 CreateHeader(panel2, "Radar Settings", -15)
 CreateCheck(panel2, "Track Wanted Players (Open World)", "trackWantedsWorld", -35, true)
