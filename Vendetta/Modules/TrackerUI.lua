@@ -164,7 +164,7 @@ function Ven.UpdateTrackerUI()
     local showEnemies = (not inInstance and db.trackTargetsWorld ~= false) or (isPvPInst and db.trackTargetsInst ~= false)
     local showAllies  = (not inInstance and db.trackAlliesWorld == true) or (isPvPInst and db.trackAlliesInst == true)
 
-    if not showWanteds and not showEnemies and not showAllies and not db.huntMode then 
+    if not showWanteds and not showEnemies and not showAllies and not db.trackNetworkBounties and db.trackNetworkWanteds == false then 
         if not InCombatLockdown() then f:Hide() end
         return 
     end
@@ -202,7 +202,7 @@ function Ven.UpdateTrackerUI()
         end
     end
 
-    if db.huntMode and Ven.BountyBoard then
+    if db.trackNetworkBounties and Ven.BountyBoard then
         for name, owners in pairs(Ven.BountyBoard) do
             local lSeen = Ven.bountyLastSeen and Ven.bountyLastSeen[name] or 0 
             if lSeen > 0 and (currentTick - lSeen) <= 60 then
@@ -219,7 +219,7 @@ function Ven.UpdateTrackerUI()
         end
     end
     
-    if Ven.WantedBoard then
+    if (db.trackNetworkWanteds ~= false) and Ven.WantedBoard then
         for name, owners in pairs(Ven.WantedBoard) do
             local lSeen = Ven.wantedLastSeen and Ven.wantedLastSeen[name] or 0 
             if lSeen > 0 and (currentTick - lSeen) <= 60 then

@@ -189,15 +189,11 @@ CreateSoundDrop(panel2, "Wanted Player Killed:", "wantedKillSoundIdx", "wantedKi
 
 CreateHeader(panel3, "Bounty Network", -15)
 CreateCheck(panel3, "Enable Bounty Network", "enableNetwork", -35, false)
-CreateCheck(panel3, "Hunt Mode (Track Network Bounties on Radar)", "huntMode", -65, false)
-
-CreateHeader(panel3, "Security", -105)
-local wlTitle = panel3:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-wlTitle:SetPoint("TOPLEFT", 20, -130); wlTitle:SetText("Sender Whitelist:")
-wlTitle:SetShadowOffset(1, -1); wlTitle:SetShadowColor(0, 0, 0, 1)
+CreateCheck(panel3, "Track Bounties", "trackNetworkBounties", -65, true)
+CreateCheck(panel3, "Track Whitelist Wanteds", "trackNetworkWanteds", -95, true)
 
 local openWlBtn = CreateFrame("Button", nil, panel3, "UIPanelButtonTemplate")
-openWlBtn:SetSize(150, 22); openWlBtn:SetPoint("TOPLEFT", 25, -150)
+openWlBtn:SetSize(150, 22); openWlBtn:SetPoint("TOPLEFT", 25, -125)
 openWlBtn:SetText("Manage Whitelist")
 
 CreateHeader(panel3, "Audio Alerts", -190)
