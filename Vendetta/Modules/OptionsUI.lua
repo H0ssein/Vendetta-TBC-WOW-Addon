@@ -410,10 +410,10 @@ local wlNoteBox = CreateFrame("EditBox", "VenWlNoteBox", wlFrame, "InputBoxTempl
 wlNoteBox:SetSize(100, 20)
 wlNoteBox:SetPoint("LEFT", wlNameBox, "RIGHT", 15, 0)
 wlNoteBox:SetAutoFocus(false)
-wlNoteBox:SetMaxLetters(15)
+wlNoteBox:SetMaxLetters(10)
 local wlNoteLbl = wlFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 wlNoteLbl:SetPoint("BOTTOMLEFT", wlNoteBox, "TOPLEFT", 0, 3)
-wlNoteLbl:SetText("Note (Max 15):")
+wlNoteLbl:SetText("Note:")
 
 local wlAddBtn = CreateFrame("Button", nil, wlFrame, "BackdropTemplate")
 wlAddBtn:SetSize(50, 22)
@@ -429,6 +429,31 @@ wlDiv:SetColorTexture(0.4, 0.4, 0.4, 0.7)
 local hName = wlFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 hName:SetPoint("TOPLEFT", 15, -85)
 hName:SetText("Player Name")
+
+Ven.Popups = Ven.Popups or {}
+Ven.Popups["VENDETTA_SET_WHITELIST_NOTE"] = {
+	text = "Set note for '%s':",
+	button1 = "Save",
+	button2 = "Cancel",
+	hasEditBox = true,
+	maxLetters = 10,
+	OnShow = function(self, data)
+		local db = Ven.InitHeroDB()
+		if db.whitelistData and db.whitelistData[data] then
+			self.editBox:SetText(db.whitelistData[data])
+		end
+	end,
+	OnAccept = function(self, data, inputStr)
+		if inputStr and data then
+			local db = Ven.InitHeroDB()
+			db.whitelistData = db.whitelistData or {}
+			db.whitelistData[data] = string.sub(inputStr, 1, 15)
+			Ven.UpdateWhitelistString()
+			Ven.RefreshWhitelistView()
+		end
+	end,
+}
+
 local hNote = wlFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 hNote:SetPoint("TOPLEFT", 125, -85)
 hNote:SetText("Whitelist Note")
@@ -450,9 +475,29 @@ for i = 1, 8 do
 
 	r.noteTxt = r:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	r.noteTxt:SetPoint("LEFT", 110, 0)
-	r.noteTxt:SetWidth(110)
+	r.noteTxt:SetWidth(95)
 	r.noteTxt:SetJustifyH("LEFT")
 	r.noteTxt:SetWordWrap(false)
+
+	r.noteBtn = CreateFrame("Button", nil, r)
+	r.noteBtn:SetSize(16, 16)
+	r.noteBtn:SetPoint("RIGHT", -20, 0)
+	r.noteBtn:SetNormalTexture("Interface\\BUTTONS\\UI-GuildButton-PublicNote-Up")
+	r.noteBtn:SetHighlightTexture("Interface\\BUTTONS\\UI-GuildButton-PublicNote-Up", "ADD")
+	r.noteBtn:SetScript("OnClick", function(self)
+		local n = self:GetParent().playerName
+		if n then
+			Ven.ShowPopup(Ven.Popups["VENDETTA_SET_WHITELIST_NOTE"], n)
+		end
+	end)
+	r.noteBtn:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:SetText("Edit Note")
+		GameTooltip:Show()
+	end)
+	r.noteBtn:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
 
 	r.delBtn = CreateFrame("Button", nil, r)
 	r.delBtn:SetSize(16, 16)
