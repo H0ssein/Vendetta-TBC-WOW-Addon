@@ -364,6 +364,12 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
+local foundThisTick = {}
+local unitsToScan = { "target", "mouseover" }
+for i = 1, 40 do
+	table.insert(unitsToScan, "nameplate" .. i)
+end
+
 local scanTimer = 0
 CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 	scanTimer = scanTimer + elapsed
@@ -391,11 +397,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 	local scanEnemies = (not inInstance and db.trackTargetsWorld ~= false)
 		or (isPvPInst and db.trackTargetsInst ~= false)
 	local scanAllies = (not inInstance and db.trackAlliesWorld == true) or (isPvPInst and db.trackAlliesInst == true)
-	local foundThisTick = {}
-	local unitsToScan = { "target", "mouseover" }
-	for i = 1, 40 do
-		table.insert(unitsToScan, "nameplate" .. i)
-	end
+	wipe(foundThisTick)
 
 	for _, unit in ipairs(unitsToScan) do
 		if UnitExists(unit) and UnitIsPlayer(unit) then
