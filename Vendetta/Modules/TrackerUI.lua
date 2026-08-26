@@ -210,9 +210,8 @@ function Ven.UpdateTrackerUI()
                 for _, v in ipairs(wList) do if v.name == name then alreadyInList = true break end end
                 
                 if not alreadyInList then
-                    local ownerName = next(owners) or "Unknown"
                     local pc = Ven.playerCache[name] or {}
-                    local fakeData = {classFile = pc.classFile, faction = pc.faction, level = pc.level, kills = 0, deaths = 0, note = "Wanted By: " .. ownerName, isBounty = true}
+                    local fakeData = {classFile = pc.classFile, faction = pc.faction, level = pc.level, kills = 0, deaths = 0, note = "", isBounty = true}
                     table.insert(wList, {name=name, data=fakeData, lastSeen=lSeen, isNetBounty=true, isNetWanted=false})
                 end
             end
@@ -226,8 +225,8 @@ function Ven.UpdateTrackerUI()
                 local alreadyInList = false
                 for _, v in ipairs(wList) do if v.name == name then alreadyInList = true break end end
                 if not alreadyInList then
-                    local ownerName = next(owners) or "Unknown"; local pc = Ven.playerCache[name] or {}
-                    local fakeData = {classFile = pc.classFile, faction = pc.faction, level = pc.level, kills = 0, deaths = 0, note = "Shared By: " .. ownerName, isWanted = true}
+                    local pc = Ven.playerCache[name] or {}
+                    local fakeData = {classFile = pc.classFile, faction = pc.faction, level = pc.level, kills = 0, deaths = 0, note = "", isWanted = true}
                     table.insert(wList, {name=name, data=fakeData, lastSeen=lSeen, isNetBounty=false, isNetWanted=true})
                 end
             end
