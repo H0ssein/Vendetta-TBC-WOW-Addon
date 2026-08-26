@@ -3,6 +3,15 @@ local addonName, Ven = ...
 local recentAttackers, recentDamageDealt, lastKillRegistered = {}, {}, {}
 local wasDBVisibleBeforeCombat = false
 
+local isDamageEvent = {
+	SWING_DAMAGE = true,
+	RANGE_DAMAGE = true,
+	SPELL_DAMAGE = true,
+	SPELL_PERIODIC_DAMAGE = true,
+	SPELL_BUILDING_DAMAGE = true,
+	ENVIRONMENTAL_DAMAGE = true,
+}
+
 local function GetFactionFromRace(raceFile)
 	if not raceFile then
 		return "?"
@@ -247,7 +256,7 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 
 		if
 			sourceGUID == myGUID
-			and string.match(subevent, "_DAMAGE")
+			and isDamageEvent[subevent]
 			and isDestPlayer
 			and destGUID ~= myGUID
 			and dName ~= myName
@@ -267,7 +276,7 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 				recentDamageDealt[dName] = nil
 			end
 		elseif
-			string.match(subevent, "_DAMAGE")
+			isDamageEvent[subevent]
 			and destGUID == myGUID
 			and isSourcePlayer
 			and sourceGUID ~= myGUID
