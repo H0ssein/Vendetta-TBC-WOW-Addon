@@ -260,6 +260,9 @@ for i = 1, 8 do
 
 	row:EnableMouseWheel(true)
 	row:SetScript("OnMouseWheel", function(self, delta)
+		if GameTooltip:IsShown() then
+			GameTooltip:Hide()
+		end
 		if self.isWantedType then
 			Ven.wantedOffset = math.max(0, Ven.wantedOffset - delta)
 		else

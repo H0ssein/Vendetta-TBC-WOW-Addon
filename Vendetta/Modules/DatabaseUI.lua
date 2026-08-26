@@ -10,6 +10,9 @@ local reservedKeys = {
 }
 
 local function HandleScroll(self, delta)
+	if GameTooltip:IsShown() then
+		GameTooltip:Hide()
+	end
 	local maxItems = Ven.numDBItems or 0
 	if maxItems <= 10 then
 		return
@@ -527,7 +530,10 @@ local scrollFrame = CreateFrame("ScrollFrame", "VendettaDBScrollFrame", DBFrame,
 scrollFrame:SetPoint("TOPLEFT", 10, -110)
 scrollFrame:SetPoint("BOTTOMRIGHT", -35, 45)
 scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
-	FauxScrollFrame_OnVerticalScroll(self, offset, 20, Ven.RefreshDBView)
+	if GameTooltip:IsShown() then
+		GameTooltip:Hide()
+	end
+	FauxScrollFrame_OnVerticalScroll(self, offset, 20, Ven.UpdateDBScroll)
 end)
 scrollFrame:EnableMouseWheel(true)
 scrollFrame:SetScript("OnMouseWheel", HandleScroll)
@@ -920,6 +926,14 @@ function Ven.RefreshDBView()
 	end)
 
 	Ven.numDBItems = #sortedDB
+	Ven.sortedDB = sortedDB
+	Ven.UpdateDBScroll()
+end
+
+function Ven.UpdateDBScroll()
+	local sortedDB = Ven.sortedDB or {}
+	local rName = GetRealmName() or "Unknown"
+	local db = Ven.InitHeroDB()
 
 	FauxScrollFrame_Update(scrollFrame, #sortedDB, 10, 20)
 	local offset = FauxScrollFrame_GetOffset(scrollFrame)
