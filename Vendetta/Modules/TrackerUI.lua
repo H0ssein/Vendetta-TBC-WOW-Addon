@@ -274,6 +274,8 @@ for i = 1, 8 do
 end
 Ven.TrackerRows = rows
 
+local wList, tList = {}, {}
+
 function Ven.UpdateTrackerUI()
 	local db = Ven.InitHeroDB()
 	local inInstance, instanceType = IsInInstance()
@@ -332,7 +334,8 @@ function Ven.UpdateTrackerUI()
 		return
 	end
 
-	local wList, tList = {}, {}
+	wipe(wList)
+	wipe(tList)
 
 	if showWanteds then
 		for name, data in pairs(db) do

@@ -558,6 +558,8 @@ DBFrame:SetScript("OnShow", function()
 	Ven.RefreshDBView()
 end)
 
+local cachedSortedDB, cachedMergedDB = {}, {}
+
 function Ven.RefreshDBView()
 	local rName, pName = GetRealmName() or "Unknown", UnitName("player") or "Unknown"
 	local db = Ven.InitHeroDB()
@@ -570,8 +572,10 @@ function Ven.RefreshDBView()
 	if db.showNetworkBounties == nil then
 		db.showNetworkBounties = true
 	end
-	local sortedDB, isWantedOnly, filterText = {}, db.filterWantedOnly, string.lower(searchBox:GetText() or "")
-	local merged = {}
+	wipe(cachedSortedDB)
+	wipe(cachedMergedDB)
+	local sortedDB, isWantedOnly, filterText = cachedSortedDB, db.filterWantedOnly, string.lower(searchBox:GetText() or "")
+	local merged = cachedMergedDB
 
 	local function InsertToMerged(n, d)
 		if not merged[n] then
