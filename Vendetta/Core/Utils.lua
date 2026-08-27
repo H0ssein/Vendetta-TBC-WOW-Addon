@@ -204,8 +204,9 @@ function Ven.ShouldIgnoreCombat()
 		return true
 	end
 	local db = Ven.InitHeroDB()
-	if db.ignoreInstKills and inInstance and (instanceType == "pvp" or instanceType == "arena") then
-		return true
+	if inInstance then
+		if instanceType == "pvp" and db.ignoreBGKills then return true end
+		if instanceType == "arena" and db.ignoreArenaKills then return true end
 	end
 	return false
 end

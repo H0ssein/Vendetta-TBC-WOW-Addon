@@ -19,8 +19,15 @@ initFrame:SetScript("OnEvent", function(self, event, loadedAddon)
 		VendettaDB["MyHeroes"][UnitName("player")] = select(2, UnitClass("player"))
 
 		local db = Ven.InitHeroDB()
-		if db.ignoreInstKills == nil then
-			db.ignoreInstKills = true
+		if db.ignoreBGKills == nil then
+			if db.ignoreInstKills ~= nil then
+				db.ignoreBGKills = db.ignoreInstKills
+				db.ignoreArenaKills = db.ignoreInstKills
+				db.ignoreInstKills = nil
+			else
+				db.ignoreBGKills = true
+				db.ignoreArenaKills = true
+			end
 		end
 		Ven.isTrackerHidden = db.isTrackerHidden or false
 	end

@@ -351,12 +351,13 @@ end)
 CreateHeader(panel4, "General & UI Settings", -15)
 CreateCheck(panel4, "Hide Tracker UI During Combat", "hideInCombat", -35, false)
 CreateCheck(panel4, "Enable Radar in Safe Zones (e.g. Cities)", "trackInSafeZones", -65, false)
-CreateCheck(panel4, "Ignore Kills/Deaths inside Battlegrounds", "ignoreInstKills", -95, true)
+CreateCheck(panel4, "Ignore Kills/Deaths inside Battlegrounds", "ignoreBGKills", -95, true)
+CreateCheck(panel4, "Ignore Kills/Deaths inside Arenas", "ignoreArenaKills", -125, true)
 CreateCheck(
 	panel4,
 	"Use Server Time (ST) for UI",
 	"useServerTime",
-	-125,
+	-155,
 	true,
 	"Display all times and dates according to Realm Server Time."
 )
@@ -364,7 +365,7 @@ CreateCheck(
 	panel4,
 	"Hide Minimap Button Completely",
 	"hideMinimapBtn",
-	-155,
+	-185,
 	false,
 	"Hide the minimap button completely."
 )
