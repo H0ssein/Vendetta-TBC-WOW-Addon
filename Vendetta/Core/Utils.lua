@@ -388,7 +388,7 @@ function Ven.ShowPlayerTooltip(ownerFrame, playerName)
 				end
 				if pData.lastKillTime or pData.lastDeathTime then
 					hasHistory = true
-					table.insert(altHistory, { hero = hero, lk = pData.lastKillTime, ld = pData.lastDeathTime })
+					table.insert(altHistory, { hero = hero, lk = pData.lastKillTime, ld = pData.lastDeathTime, lkLoc = pData.lastKillLoc, ldLoc = pData.lastDeathLoc })
 				end
 			end
 		end
@@ -513,16 +513,26 @@ function Ven.ShowPlayerTooltip(ownerFrame, playerName)
 					and Ven.GetClassColor(VendettaDB["MyHeroes"][hist.hero])
 				or "|cFFFFFFFF"
 			if hist.lk then
+				local lkLocStr = ""
+				if hist.lkLoc and hist.lkLoc ~= "" then
+					local p = string.match(hist.lkLoc, "^([^%-%(]+)")
+					if p then lkLocStr = " (|cFF00FFFF" .. p:gsub("%s+$", "") .. "|r)" end
+				end
 				GameTooltip:AddLine(
-					"Last kill by " .. hColor .. hist.hero .. "|r : " .. Ven.FormatTimeStr(hist.lk),
+					"Last kill by " .. hColor .. hist.hero .. "|r : " .. Ven.FormatTimeStr(hist.lk) .. lkLocStr,
 					1,
 					1,
 					1
 				)
 			end
 			if hist.ld then
+				local ldLocStr = ""
+				if hist.ldLoc and hist.ldLoc ~= "" then
+					local p = string.match(hist.ldLoc, "^([^%-%(]+)")
+					if p then ldLocStr = " (|cFF00FFFF" .. p:gsub("%s+$", "") .. "|r)" end
+				end
 				GameTooltip:AddLine(
-					"Last killed " .. hColor .. hist.hero .. "|r : " .. Ven.FormatTimeStr(hist.ld),
+					"Last killed " .. hColor .. hist.hero .. "|r : " .. Ven.FormatTimeStr(hist.ld) .. ldLocStr,
 					1,
 					1,
 					1

@@ -312,8 +312,16 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 					}
 				end
 				UpdateMissingDBInfo(name)
+				local zText, mText = GetZoneText() or "", GetMinimapZoneText() or ""
+				local pureZone = zText
+				if mText ~= "" and mText ~= zText then pureZone = pureZone .. " - " .. mText end
+				local layer = Ven.GetCurrentLayer()
+				local deathLoc = pureZone
+				if layer ~= "" then deathLoc = deathLoc .. " (Layer " .. layer .. ")" end
+
 				db[name].deaths = (db[name].deaths or 0) + 1
 				db[name].lastDeathTime = deathTimestamp
+				db[name].lastDeathLoc = deathLoc
 			end
 		end
 		recentAttackers = {}
