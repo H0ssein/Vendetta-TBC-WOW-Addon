@@ -12,6 +12,13 @@ local isDamageEvent = {
 	ENVIRONMENTAL_DAMAGE = true,
 }
 
+local function GetClassColoredName(name, cFile, defaultHex)
+	if cFile and RAID_CLASS_COLORS and RAID_CLASS_COLORS[cFile] then
+		return "|c" .. RAID_CLASS_COLORS[cFile].colorStr .. name .. "|r"
+	end
+	return defaultHex .. name .. "|r"
+end
+
 local function GetFactionFromRace(raceFile)
 	if not raceFile then
 		return "?"
@@ -489,25 +496,41 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 									if Ven.soundList and Ven.soundList[wIdx] then
 										Ven.AlertPlaySound(Ven.soundList[wIdx].id, db.wantedForceBG)
 									end
-									RaidNotice_AddMessage(
-										RaidWarningFrame,
-										"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t |cFFFF0000WANTED SPOTTED: "
-											.. name
-											.. "|r |TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t",
-										ChatTypeInfo["RAID_WARNING"]
-									)
+									if db.enableToasts and Ven.ShowToast then
+										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
+										local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
+										local coloredName = GetClassColoredName(name, cFile, "|cFFFF0000")
+										Ven.ShowToast("WANTED SPOTTED", coloredName .. " has been found!", cFile, faction)
+									else
+										local coloredName = GetClassColoredName(name, Ven.playerCache[name] and Ven.playerCache[name].classFile or nil, "|cFFFF0000")
+										RaidNotice_AddMessage(
+											RaidWarningFrame,
+											"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t |cFFFF0000WANTED SPOTTED: |r"
+												.. coloredName
+												.. " |TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t",
+											ChatTypeInfo["RAID_WARNING"]
+										)
+									end
 								elseif isPersBounty then
 									local bIdx = db.bountySpottedSoundIdx or 4
 									if Ven.soundList and Ven.soundList[bIdx] then
 										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG)
 									end
-									RaidNotice_AddMessage(
-										RaidWarningFrame,
-										"|TInterface\\Icons\\INV_Misc_Coin_02:24|t |cFFFFAA00YOUR BOUNTY SPOTTED: "
-											.. name
-											.. "|r |TInterface\\Icons\\INV_Misc_Coin_02:24|t",
-										ChatTypeInfo["RAID_WARNING"]
-									)
+									if db.enableToasts and Ven.ShowToast then
+										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
+										local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
+										local coloredName = GetClassColoredName(name, cFile, "|cFFFFAA00")
+										Ven.ShowToast("BOUNTY SPOTTED", "Your bounty " .. coloredName .. " is nearby!", cFile, faction)
+									else
+										local coloredName = GetClassColoredName(name, Ven.playerCache[name] and Ven.playerCache[name].classFile or nil, "|cFFFFAA00")
+										RaidNotice_AddMessage(
+											RaidWarningFrame,
+											"|TInterface\\Icons\\INV_Misc_Coin_02:24|t |cFFFFAA00YOUR BOUNTY SPOTTED: |r"
+												.. coloredName
+												.. " |TInterface\\Icons\\INV_Misc_Coin_02:24|t",
+											ChatTypeInfo["RAID_WARNING"]
+										)
+									end
 								elseif isNetWanted then
 									local wIdx = db.wantedSoundIdx or 3
 									if Ven.soundList and Ven.soundList[wIdx] then
@@ -521,15 +544,23 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 											ownerList = ownerList .. ", " .. o
 										end
 									end
-									RaidNotice_AddMessage(
-										RaidWarningFrame,
-										"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t |cFFFF0000SHARED WANTED SPOTTED: "
-											.. name
-											.. " (By: "
-											.. ownerList
-											.. ")|r |TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t",
-										ChatTypeInfo["RAID_WARNING"]
-									)
+									if db.enableToasts and Ven.ShowToast then
+										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
+										local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
+										local coloredName = GetClassColoredName(name, cFile, "|cFFFF0000")
+										Ven.ShowToast("SHARED WANTED", coloredName .. " (By: " .. ownerList .. ")", cFile, faction)
+									else
+										local coloredName = GetClassColoredName(name, Ven.playerCache[name] and Ven.playerCache[name].classFile or nil, "|cFFFF0000")
+										RaidNotice_AddMessage(
+											RaidWarningFrame,
+											"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t |cFFFF0000SHARED WANTED SPOTTED: |r"
+												.. coloredName
+												.. " |cFFFF0000(By: "
+												.. ownerList
+												.. ")|r |TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t",
+											ChatTypeInfo["RAID_WARNING"]
+										)
+									end
 								end
 								playedSpotSound = true
 							end
@@ -572,15 +603,23 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 											ownerList = ownerList .. ", " .. o
 										end
 									end
-									RaidNotice_AddMessage(
-										RaidWarningFrame,
-										"|TInterface\\Icons\\Ability_Hunter_SniperShot:24|t |cFF00FFFFNETWORK BOUNTY SPOTTED: "
-											.. name
-											.. " (By: "
-											.. ownerList
-											.. ")|r |TInterface\\Icons\\Ability_Hunter_SniperShot:24|t",
-										ChatTypeInfo["RAID_WARNING"]
-									)
+									if db.enableToasts and Ven.ShowToast then
+										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
+										local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
+										local coloredName = GetClassColoredName(name, cFile, "|cFF00FFFF")
+										Ven.ShowToast("SHARED BOUNTY", "Shared bounty " .. coloredName .. " (By: " .. ownerList .. ")", cFile, faction)
+									else
+										local coloredName = GetClassColoredName(name, Ven.playerCache[name] and Ven.playerCache[name].classFile or nil, "|cFF00FFFF")
+										RaidNotice_AddMessage(
+											RaidWarningFrame,
+											"|TInterface\\Icons\\Ability_Hunter_SniperShot:24|t |cFF00FFFFNETWORK BOUNTY SPOTTED: |r"
+												.. coloredName
+												.. " |cFF00FFFF(By: "
+												.. ownerList
+												.. ")|r |TInterface\\Icons\\Ability_Hunter_SniperShot:24|t",
+											ChatTypeInfo["RAID_WARNING"]
+										)
+									end
 								end
 							end
 
@@ -687,21 +726,33 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 				if Ven.soundList and Ven.soundList[fIdx] then
 					Ven.AlertPlaySound(Ven.soundList[fIdx].id, db.friendlyForceBG)
 				end
-				RaidNotice_AddMessage(
-					RaidWarningFrame,
-					"|cff00ff00[!] " .. name .. " (Ally) IS TARGETING YOU! [!]|r",
-					ChatTypeInfo["RAID_WARNING"]
-				)
+				local coloredName = GetClassColoredName(name, data.classFile, "|cff00ff00")
+				if db.enableToasts and Ven.ShowToast then
+					local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
+					Ven.ShowToast("TARGET WARNING", coloredName .. " is targeting you!", data.classFile, faction)
+				else
+					RaidNotice_AddMessage(
+						RaidWarningFrame,
+						"|cff00ff00[!] |r" .. coloredName .. " |cff00ff00(Ally) IS TARGETING YOU! [!]|r",
+						ChatTypeInfo["RAID_WARNING"]
+					)
+				end
 			else
 				local tIdx = db.targetSoundIdx or 2
 				if Ven.soundList and Ven.soundList[tIdx] then
 					Ven.AlertPlaySound(Ven.soundList[tIdx].id, db.targetForceBG)
 				end
-				RaidNotice_AddMessage(
-					RaidWarningFrame,
-					"|cffff0000[!] " .. name .. " IS TARGETING YOU! [!]|r",
-					ChatTypeInfo["RAID_WARNING"]
-				)
+				local coloredName = GetClassColoredName(name, data.classFile, "|cffff0000")
+				if db.enableToasts and Ven.ShowToast then
+					local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
+					Ven.ShowToast("TARGET WARNING", coloredName .. " is targeting you!", data.classFile, faction)
+				else
+					RaidNotice_AddMessage(
+						RaidWarningFrame,
+						"|cffff0000[!] |r" .. coloredName .. " |cffff0000IS TARGETING YOU! [!]|r",
+						ChatTypeInfo["RAID_WARNING"]
+					)
+				end
 			end
 		end
 		Ven.activeTargets[name] = data

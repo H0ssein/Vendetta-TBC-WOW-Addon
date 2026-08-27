@@ -8,6 +8,7 @@
 
 Core\Init.lua
 Core\Utils.lua
+Core\Notify.lua
 Modules\Network.lua
 Modules\Scanner.lua
 Modules\TrackerUI.lua

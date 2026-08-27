@@ -29,6 +29,16 @@ initFrame:SetScript("OnEvent", function(self, event, loadedAddon)
 				db.ignoreArenaKills = true
 			end
 		end
+		if db.enableToasts == nil then
+			db.enableToasts = true
+			db.toastDuration = 5.0
+			db.toastScale = 1.0
+			db.toastBgColor = { r = 0.05, g = 0.05, b = 0.05, a = 0.95 }
+			db.toastBorderColor = { r = 0.3, g = 0.3, b = 0.3, a = 1.0 }
+			db.toastAnchor = "TOP"
+			db.toastX = 0
+			db.toastY = -90
+		end
 		Ven.isTrackerHidden = db.isTrackerHidden or false
 	end
 end)

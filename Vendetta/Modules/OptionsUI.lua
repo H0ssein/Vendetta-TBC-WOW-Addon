@@ -2,7 +2,7 @@ local addonName, Ven = ...
 
 local f = CreateFrame("Frame", "VendettaOptionsFrame", UIParent, "BackdropTemplate")
 Ven.OptionsFrame = f
-f:SetSize(430, 420)
+f:SetSize(450, 420)
 f:SetPoint("CENTER")
 f:SetFrameStrata("DIALOG")
 f:SetMovable(true)
@@ -76,7 +76,7 @@ end
 
 local tabs = {}
 local currentTab = 1
-local function CreateTab(id, name, width, xOffset)
+local function CreateTab(id, name, width, xOffset, contentHeight)
 	local btn = CreateFrame("Button", nil, f, "BackdropTemplate")
 	btn:SetSize(width, 26)
 	btn:SetPoint("TOPLEFT", xOffset, -40)
@@ -87,19 +87,51 @@ local function CreateTab(id, name, width, xOffset)
 	txt:SetText(name)
 	btn.flatText = txt
 
-	local panel = CreateFrame("Frame", nil, f)
-	panel:SetPoint("TOPLEFT", 0, -70)
-	panel:SetPoint("BOTTOMRIGHT", 0, 0)
-	panel:Hide()
+	local scrollFrame = CreateFrame("ScrollFrame", "VenOptScrollFrame"..id, f, "UIPanelScrollFrameTemplate")
+	scrollFrame:SetPoint("TOPLEFT", 0, -70)
+	scrollFrame:SetPoint("BOTTOMRIGHT", -30, 5)
+	scrollFrame:Hide()
+	
+	local function UpdateScrollState(self)
+		local yrange = self:GetVerticalScrollRange() or 0
+		local scrollBar = self.ScrollBar or _G[self:GetName() .. "ScrollBar"]
+		if scrollBar then
+			local upBtn = scrollBar.ScrollUpButton or _G[scrollBar:GetName() .. "ScrollUpButton"]
+			local downBtn = scrollBar.ScrollDownButton or _G[scrollBar:GetName() .. "ScrollDownButton"]
+			local thumb = scrollBar.ThumbTexture or _G[scrollBar:GetName() .. "ThumbTexture"]
+			
+			if math.floor(yrange) == 0 then
+				scrollBar:SetAlpha(0)
+				scrollBar:Hide()
+				if upBtn then upBtn:Hide() end
+				if downBtn then downBtn:Hide() end
+				if thumb then thumb:Hide() end
+			else
+				scrollBar:SetAlpha(1)
+				scrollBar:Show()
+				if upBtn then upBtn:Show() end
+				if downBtn then downBtn:Show() end
+				if thumb then thumb:Show() end
+			end
+		end
+	end
 
-	tabs[id] = { btn = btn, panel = panel }
+	scrollFrame:HookScript("OnScrollRangeChanged", UpdateScrollState)
+	scrollFrame:HookScript("OnShow", UpdateScrollState)
+	scrollFrame:HookScript("OnSizeChanged", UpdateScrollState)
+
+	local panel = CreateFrame("Frame", nil, scrollFrame)
+	panel:SetSize(400, contentHeight or 300)
+	scrollFrame:SetScrollChild(panel)
+
+	tabs[id] = { btn = btn, panel = scrollFrame }
 	return panel
 end
 
-local panel1 = CreateTab(1, "Target Tracking", 100, 12)
-local panel2 = CreateTab(2, "Wanteds", 90, 115)
-local panel3 = CreateTab(3, "Bounties", 110, 208)
-local panel4 = CreateTab(4, "General", 80, 321)
+local panel1 = CreateTab(1, "Target Tracking", 100, 12, 300)
+local panel2 = CreateTab(2, "Wanteds", 90, 115, 300)
+local panel3 = CreateTab(3, "Bounties", 110, 208, 340)
+local panel4 = CreateTab(4, "General", 80, 321, 360)
 
 local function SelectTab(id)
 	currentTab = id
@@ -114,6 +146,7 @@ local function SelectTab(id)
 	tabs[id].btn:SetBackdropBorderColor(0.5, 0.5, 0.5, 0.9)
 	tabs[id].btn.flatText:SetTextColor(1, 1, 1)
 end
+
 for i = 1, 4 do
 	tabs[i].btn:SetScript("OnClick", function()
 		SelectTab(i)
@@ -131,6 +164,123 @@ for i = 1, 4 do
 end
 SelectTab(1)
 
+local function CreateSlider(parent, text, dbKey, yOffset, minVal, maxVal, step, defaultVal)
+	local container = CreateFrame("Frame", nil, parent)
+	container:SetSize(200, 35)
+	container:SetPoint("TOPLEFT", 25, yOffset)
+
+	local title = container:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	title:SetPoint("TOPLEFT", 0, 0)
+	title:SetText(text)
+
+	local slider = CreateFrame("Slider", nil, container, "BackdropTemplate")
+	slider:SetSize(140, 10)
+	slider:SetPoint("BOTTOMLEFT", 0, 0)
+	slider:SetOrientation("HORIZONTAL")
+	slider:SetMinMaxValues(minVal, maxVal)
+	slider:SetValueStep(step)
+	slider:SetObeyStepOnDrag(true)
+
+	slider:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+	slider:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+	slider:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+
+	local thumb = slider:CreateTexture(nil, "ARTWORK")
+	thumb:SetSize(10, 16)
+	thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
+	thumb:SetVertexColor(0.7, 0.7, 0.7, 1)
+	slider:SetThumbTexture(thumb)
+
+	local editBox = CreateFrame("EditBox", nil, container, "BackdropTemplate")
+	editBox:SetSize(45, 20)
+	editBox:SetPoint("LEFT", slider, "RIGHT", 10, 0)
+	editBox:SetFontObject("GameFontHighlightSmall")
+	editBox:SetJustifyH("CENTER")
+	editBox:SetAutoFocus(false)
+	editBox:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+	editBox:SetBackdropColor(0.05, 0.05, 0.05, 0.9)
+	editBox:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+
+	slider:SetScript("OnShow", function(self)
+		local val = Ven.InitHeroDB()[dbKey]
+		if val == nil then val = defaultVal end
+		self:SetValue(val)
+		editBox:SetText(string.format("%.1f", val))
+	end)
+
+	slider:SetScript("OnValueChanged", function(self, value)
+		Ven.InitHeroDB()[dbKey] = value
+		editBox:SetText(string.format("%.1f", value))
+	end)
+
+	editBox:SetScript("OnEnterPressed", function(self)
+		local val = tonumber(self:GetText())
+		if val then
+			if val < minVal then val = minVal end
+			if val > maxVal then val = maxVal end
+			slider:SetValue(val)
+			self:ClearFocus()
+		else
+			self:SetText(string.format("%.1f", slider:GetValue()))
+			self:ClearFocus()
+		end
+	end)
+	editBox:SetScript("OnEscapePressed", function(self)
+		self:SetText(string.format("%.1f", slider:GetValue()))
+		self:ClearFocus()
+	end)
+
+	return container
+end
+
+local function CreateColorPicker(parent, text, dbKey, yOffset, defaultVal)
+	local btn = CreateFrame("Button", nil, parent)
+	btn:SetSize(20, 20)
+	btn:SetPoint("TOPLEFT", 25, yOffset)
+	local tex = btn:CreateTexture(nil, "BACKGROUND")
+	tex:SetAllPoints()
+	tex:SetColorTexture(1, 1, 1, 1)
+	local fg = btn:CreateTexture(nil, "ARTWORK")
+	fg:SetPoint("TOPLEFT", 1, -1)
+	fg:SetPoint("BOTTOMRIGHT", -1, 1)
+	btn.fg = fg
+	
+	local txt = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	txt:SetPoint("LEFT", btn, "RIGHT", 10, 0)
+	txt:SetText(text)
+	
+	btn:SetScript("OnShow", function(self)
+		local val = Ven.InitHeroDB()[dbKey]
+		if type(val) ~= "table" or not val.r then
+			val = defaultVal
+		end
+		self.fg:SetColorTexture(val.r or 1, val.g or 1, val.b or 1, val.a or 1)
+	end)
+	
+	btn:SetScript("OnClick", function(self)
+		local val = Ven.InitHeroDB()[dbKey]
+		if type(val) ~= "table" or not val.r then
+			val = defaultVal
+		end
+		ColorPickerFrame.func = function()
+			local r, g, b = ColorPickerFrame:GetColorRGB()
+			local a = 1 - OpacitySliderFrame:GetValue()
+			Ven.InitHeroDB()[dbKey] = {r = r, g = g, b = b, a = a}
+			self.fg:SetColorTexture(r, g, b, a)
+		end
+		ColorPickerFrame.opacityFunc = ColorPickerFrame.func
+		ColorPickerFrame.cancelFunc = function(prev)
+			Ven.InitHeroDB()[dbKey] = {r = prev.r, g = prev.g, b = prev.b, a = prev.a}
+			self.fg:SetColorTexture(prev.r, prev.g, prev.b, prev.a)
+		end
+		ColorPickerFrame:SetColorRGB(val.r, val.g, val.b)
+		ColorPickerFrame.hasOpacity = true
+		ColorPickerFrame.opacity = 1 - val.a
+		ColorPickerFrame.previousValues = {r = val.r, g = val.g, b = val.b, a = val.a}
+		ShowUIPanel(ColorPickerFrame)
+	end)
+	return btn
+end
 local divLine = f:CreateTexture(nil, "BACKGROUND")
 divLine:SetSize(400, 1)
 divLine:SetPoint("TOP", 0, -68)
@@ -265,7 +415,7 @@ local function CreateSoundDrop(parent, label, dbKey, forceDbKey, yOffset, defaul
 	lbl:SetShadowOffset(1, -1)
 	lbl:SetShadowColor(0, 0, 0, 1)
 	local drop = CreateFrame("Button", "VenOptDrop_" .. dbKey, parent, "UIDropDownMenuTemplate")
-	drop:SetPoint("TOPLEFT", 185, yOffset + 7)
+	drop:SetPoint("TOPLEFT", 175, yOffset + 7)
 	UIDropDownMenu_SetWidth(drop, 110)
 	local forceCB = CreateFrame("CheckButton", "VenOptForce_" .. dbKey, parent, "UICheckButtonTemplate")
 	forceCB:SetSize(24, 24)
@@ -369,6 +519,31 @@ CreateCheck(
 	false,
 	"Hide the minimap button completely."
 )
+
+CreateHeader(panel4, "Toast Notifications", -225)
+CreateCheck(panel4, "Enable Toast Notifications", "enableToasts", -245, true)
+
+local notifBtn = CreateFrame("Button", nil, panel4, "BackdropTemplate")
+notifBtn:SetSize(140, 24)
+notifBtn:SetPoint("TOPLEFT", 25, -275)
+Ven.StyleFlatButton(notifBtn)
+notifBtn:SetText("Edit Position")
+notifBtn:SetScript("OnClick", function()
+	VendettaOptionsFrame:Hide()
+	if Ven.ToggleToastMover then Ven.ToggleToastMover() end
+end)
+
+local resetNotifBtn = CreateFrame("Button", nil, panel4, "BackdropTemplate")
+resetNotifBtn:SetSize(80, 24)
+resetNotifBtn:SetPoint("LEFT", notifBtn, "RIGHT", 10, 0)
+Ven.StyleFlatButton(resetNotifBtn)
+resetNotifBtn:SetText("Reset")
+resetNotifBtn:SetScript("OnClick", function()
+	if Ven.ResetToastSettings then Ven.ResetToastSettings() end
+end)
+
+CreateSlider(panel4, "Toast Duration (sec)", "toastDuration", -315, 2.0, 20.0, 0.5, 5.0)
+
 
 local wlFrame = CreateFrame("Frame", "Ven_WhitelistFrame", UIParent, "BackdropTemplate")
 Ven.WhitelistFrame = wlFrame

@@ -654,7 +654,7 @@ function Ven.RefreshDBView()
 
 	if db.showPersonalData then
 		for n, d in pairs(db) do
-			if type(d) == "table" and not reservedKeys[n] then
+			if type(d) == "table" and d.kills ~= nil and not reservedKeys[n] then
 				InsertToMerged(n, d)
 			end
 		end
@@ -666,7 +666,7 @@ function Ven.RefreshDBView()
 					if not reservedKeys[heroName] and not (realm == rName and heroName == pName) then
 						if type(heroEnemies) == "table" then
 							for n, d in pairs(heroEnemies) do
-								if type(d) == "table" then
+								if type(d) == "table" and d.kills ~= nil then
 									InsertToMerged(n, d)
 								end
 							end

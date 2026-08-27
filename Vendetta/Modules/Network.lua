@@ -374,6 +374,16 @@ f:SetScript("OnEvent", function(self, event, ...)
 							.. "."
 					)
 				end
+				
+				if Ven.ShowToast then
+					local faction = Ven.playerCache[target] and Ven.playerCache[target].faction or nil
+					Ven.ShowToast(
+						targetType .. " EXECUTED!",
+						cColor .. sName .. "|r executed |cFFFF0000" .. target .. "|r at " .. (loc or "Unknown"),
+						hunterClass,
+						faction
+					)
+				end
 
 				local kIdx = (db[target] and db[target].isBounty) and (db.bountyKillSoundIdx or 3)
 					or (db.wantedKillSoundIdx or 3)
