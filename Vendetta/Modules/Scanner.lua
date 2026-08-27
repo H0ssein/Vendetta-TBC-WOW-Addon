@@ -347,31 +347,70 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			end
 			local rName, pName = GetRealmName() or "Unknown", UnitName("player") or "Unknown"
 			if VendettaDB[rName] then
+				Ven.AccountWanteds = {}
+				Ven.AccountBounties = {}
 				for hero, enemies in pairs(VendettaDB[rName]) do
-					if type(enemies) == "table" then
+					if type(enemies) == "table" and hero ~= pName and hero ~= "MyHeroes" then
 						for eName, eData in pairs(enemies) do
-							if type(eData) == "table" and (eData.isWanted or eData.isBounty) and hero ~= pName then
-								if not db[eName] then
-									db[eName] = {
-										kills = 0,
-										deaths = 0,
-										level = eData.level,
-										class = eData.class,
-										classFile = eData.classFile,
-										race = eData.race,
-										faction = eData.faction,
-										note = eData.note,
-										bountyNote = eData.bountyNote,
-										isWanted = eData.isWanted,
-										isBounty = eData.isBounty,
-									}
-								else
-									db[eName].isWanted = eData.isWanted
-									db[eName].isBounty = eData.isBounty
-									db[eName].bountyNote = eData.bountyNote
-								end
+							if type(eData) == "table" then
+								if eData.isWanted then Ven.AccountWanteds[eName] = true end
+								if eData.isBounty then Ven.AccountBounties[eName] = true end
 							end
 						end
+					end
+				end
+			end
+			-- Clean up ghost entries that were previously injected by the old syncing logic
+			local reservedKeys = {
+				showPersonalData = true,
+				showAccountWide = true,
+				showNetworkBounties = true,
+				filterFaction = true,
+				filterClass = true,
+				filterLevel70Only = true,
+				filterWantedOnly = true,
+				enableNetwork = true,
+				trackNetworkWanteds = true,
+				trackNetworkBounties = true,
+				shareWanteds = true,
+				shareBounties = true,
+				enableToasts = true,
+				toastDuration = true,
+				toastScale = true,
+				toastBgColor = true,
+				toastBorderColor = true,
+				toastAnchor = true,
+				toastX = true,
+				toastY = true,
+				ignoreBGKills = true,
+				ignoreArenaKills = true,
+				isTrackerHidden = true,
+				trackerScale = true,
+				trackerX = true,
+				trackerY = true,
+				trackerWidth = true,
+				bountyKillForceBG = true,
+				bountyKillSoundIdx = true,
+				bountySpotForceBG = true,
+				bountySpotSoundIdx = true,
+				wantedKillForceBG = true,
+				wantedKillSoundIdx = true,
+				wantedSpotForceBG = true,
+				wantedSpotSoundIdx = true,
+				trackAlliesInst = true,
+				trackAlliesWorld = true,
+				trackInSafeZones = true,
+				trackTargetsInst = true,
+				trackTargetsWorld = true,
+				trackWantedsInst = true,
+				trackWantedsWorld = true,
+			}
+			for eName, eData in pairs(db) do
+				if type(eData) == "table" and not reservedKeys[eName] then
+					if (eData.kills == 0 or eData.kills == nil) 
+					   and (eData.deaths == 0 or eData.deaths == nil) 
+					   and not eData.timeAdded then
+						db[eName] = nil
 					end
 				end
 			end
@@ -449,11 +488,13 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 					local isPersBounty = type(db[name]) == "table" and db[name].isBounty
 					local isNetBounty = db.enableNetwork and Ven.BountyBoard and Ven.BountyBoard[name]
 					local isNetWanted = db.enableNetwork and Ven.WantedBoard and Ven.WantedBoard[name]
+					local isAcctWanted = db.showAccountWide and Ven.AccountWanteds and Ven.AccountWanteds[name]
+					local isAcctBounty = db.showAccountWide and Ven.AccountBounties and Ven.AccountBounties[name]
 
 					local playedSpotSound = false
 
 					if scanWanteds and (not isSafeZone or db.trackInSafeZones) then
-						if isPersWanted or isPersBounty or isNetWanted then
+						if isPersWanted or isPersBounty or isNetWanted or isNetBounty or isAcctWanted or isAcctBounty then
 							local t = GetTime()
 							local timeSinceLastSeen = t - (Ven.wantedLastSeen[name] or 0)
 							Ven.wantedLastSeen[name] = t

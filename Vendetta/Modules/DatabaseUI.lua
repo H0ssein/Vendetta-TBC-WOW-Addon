@@ -50,7 +50,7 @@ Ven.Popups["VENDETTA_CONFIRM_DELETE"] = {
 	button2 = "No",
 	OnShow = function(self, data)
 		local db = Ven.InitHeroDB()
-		local v = db and db[data]
+		local v = (db and db[data]) or Ven.playerCache[data] or Ven.SyncPlayerDataFromOtherHeroes(data)
 		if v then
 			local fIcon = Ven.GetFactionIcon(v.faction) or ""
 			local cIcon = Ven.GetClassIcon(v.classFile) or ""
