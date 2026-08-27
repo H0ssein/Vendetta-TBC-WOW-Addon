@@ -48,6 +48,16 @@ Ven.Popups["VENDETTA_CONFIRM_DELETE"] = {
 	text = "Delete '%s'?",
 	button1 = "Yes",
 	button2 = "No",
+	OnShow = function(self, data)
+		local db = Ven.InitHeroDB()
+		local v = db and db[data]
+		if v then
+			local fIcon = Ven.GetFactionIcon(v.faction) or ""
+			local cIcon = Ven.GetClassIcon(v.classFile) or ""
+			local cColor = Ven.GetClassColor(v.classFile) or "|cFFFFFFFF"
+			self.text:SetText("Delete " .. fIcon .. cIcon .. " " .. cColor .. data .. "|r?")
+		end
+	end,
 	OnAccept = function(self, data)
 		for realm, realmData in pairs(VendettaDB) do
 			if realm ~= "MyHeroes" then

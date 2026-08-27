@@ -146,9 +146,6 @@ function Ven.ShowPopup(cfg, data)
 		else
 			popup.editBox:SetMaxLetters(255)
 		end
-		if cfg.OnShow then
-			cfg.OnShow(popup, data)
-		end
 		popup.btn1:SetPoint("BOTTOMLEFT", 60, 15)
 		popup.btn2:SetPoint("BOTTOMRIGHT", -60, 15)
 	else
@@ -156,6 +153,11 @@ function Ven.ShowPopup(cfg, data)
 		popup.btn1:SetPoint("BOTTOMLEFT", 60, 25)
 		popup.btn2:SetPoint("BOTTOMRIGHT", -60, 25)
 	end
+	
+	if cfg.OnShow then
+		cfg.OnShow(popup, data)
+	end
+	
 	popup:Show()
 
 	if cfg.hasEditBox then
