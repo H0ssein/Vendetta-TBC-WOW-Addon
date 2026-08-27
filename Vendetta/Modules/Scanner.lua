@@ -532,7 +532,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 									Ven.TrackerFrame:Show()
 								end
 
-								if isPersWanted then
+								if isPersWanted or isAcctWanted then
 									local wIdx = db.wantedSoundIdx or 3
 									if Ven.soundList and Ven.soundList[wIdx] then
 										Ven.AlertPlaySound(Ven.soundList[wIdx].id, db.wantedForceBG)
@@ -552,7 +552,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 											ChatTypeInfo["RAID_WARNING"]
 										)
 									end
-								elseif isPersBounty then
+								elseif isPersBounty or isAcctBounty then
 									local bIdx = db.bountySpottedSoundIdx or 4
 									if Ven.soundList and Ven.soundList[bIdx] then
 										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG)
@@ -577,28 +577,38 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 									if Ven.soundList and Ven.soundList[wIdx] then
 										Ven.AlertPlaySound(Ven.soundList[wIdx].id, db.wantedForceBG)
 									end
-									local ownerList = ""
-									for o, _ in pairs(Ven.WantedBoard[name]) do
-										if ownerList == "" then
-											ownerList = o
-										else
-											ownerList = ownerList .. ", " .. o
-										end
-									end
 									if db.enableToasts and Ven.ShowToast then
 										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
 										local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
 										local coloredName = GetClassColoredName(name, cFile, "|cFFFF0000")
-										Ven.ShowToast("SHARED WANTED", coloredName .. " (By: " .. ownerList .. ")", cFile, faction)
+										Ven.ShowToast("WANTED SPOTTED", "Network wanted " .. coloredName .. " is nearby!", cFile, faction)
 									else
 										local coloredName = GetClassColoredName(name, Ven.playerCache[name] and Ven.playerCache[name].classFile or nil, "|cFFFF0000")
 										RaidNotice_AddMessage(
 											RaidWarningFrame,
-											"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t |cFFFF0000SHARED WANTED SPOTTED: |r"
+											"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t |cFFFF0000NETWORK WANTED SPOTTED: |r"
 												.. coloredName
-												.. " |cFFFF0000(By: "
-												.. ownerList
-												.. ")|r |TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t",
+												.. " |TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:24|t",
+											ChatTypeInfo["RAID_WARNING"]
+										)
+									end
+								elseif isNetBounty and db.huntMode then
+									local bIdx = db.bountySpottedSoundIdx or 4
+									if Ven.soundList and Ven.soundList[bIdx] then
+										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG)
+									end
+									if db.enableToasts and Ven.ShowToast then
+										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
+										local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
+										local coloredName = GetClassColoredName(name, cFile, "|cFF00FFFF")
+										Ven.ShowToast("BOUNTY SPOTTED", "Network bounty " .. coloredName .. " is nearby!", cFile, faction)
+									else
+										local coloredName = GetClassColoredName(name, Ven.playerCache[name] and Ven.playerCache[name].classFile or nil, "|cFF00FFFF")
+										RaidNotice_AddMessage(
+											RaidWarningFrame,
+											"|TInterface\\Icons\\Ability_Hunter_SniperShot:24|t |cFF00FFFFNETWORK BOUNTY SPOTTED: |r"
+												.. coloredName
+												.. " |TInterface\\Icons\\Ability_Hunter_SniperShot:24|t",
 											ChatTypeInfo["RAID_WARNING"]
 										)
 									end
@@ -614,55 +624,6 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 							local timeSinceLastBountySeen = t - (Ven.bountyLastSeen and Ven.bountyLastSeen[name] or 0)
 							Ven.bountyLastSeen = Ven.bountyLastSeen or {}
 							Ven.bountyLastSeen[name] = t
-
-							Ven.hasBountyAlertedFor = Ven.hasBountyAlertedFor or {}
-							if timeSinceLastBountySeen > 15 then
-								Ven.hasBountyAlertedFor[name] = false
-							end
-
-							if isNetBounty and db.huntMode then
-								if not Ven.hasBountyAlertedFor[name] then
-									Ven.hasBountyAlertedFor[name] = true
-									Ven.wantedOffset = 0
-									Ven.isTrackerHidden = false
-									db.isTrackerHidden = false
-									if Ven.TrackerFrame and not Ven.TrackerFrame:IsShown() then
-										Ven.TrackerFrame:Show()
-									end
-
-									if not playedSpotSound then
-										local bIdx = db.bountySpottedSoundIdx or 4
-										if Ven.soundList and Ven.soundList[bIdx] then
-											Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG)
-										end
-									end
-									local ownerList = ""
-									for o, _ in pairs(Ven.BountyBoard[name]) do
-										if ownerList == "" then
-											ownerList = o
-										else
-											ownerList = ownerList .. ", " .. o
-										end
-									end
-									if db.enableToasts and Ven.ShowToast then
-										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
-										local faction = Ven.playerCache[name] and Ven.playerCache[name].faction or nil
-										local coloredName = GetClassColoredName(name, cFile, "|cFF00FFFF")
-										Ven.ShowToast("SHARED BOUNTY", "Shared bounty " .. coloredName .. " (By: " .. ownerList .. ")", cFile, faction)
-									else
-										local coloredName = GetClassColoredName(name, Ven.playerCache[name] and Ven.playerCache[name].classFile or nil, "|cFF00FFFF")
-										RaidNotice_AddMessage(
-											RaidWarningFrame,
-											"|TInterface\\Icons\\Ability_Hunter_SniperShot:24|t |cFF00FFFFNETWORK BOUNTY SPOTTED: |r"
-												.. coloredName
-												.. " |cFF00FFFF(By: "
-												.. ownerList
-												.. ")|r |TInterface\\Icons\\Ability_Hunter_SniperShot:24|t",
-											ChatTypeInfo["RAID_WARNING"]
-										)
-									end
-								end
-							end
 
 							Ven.bountyBroadcastCD = Ven.bountyBroadcastCD or {}
 							Ven.lastWhisperedZone = Ven.lastWhisperedZone or {}
