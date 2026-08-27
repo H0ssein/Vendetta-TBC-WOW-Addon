@@ -45,7 +45,7 @@ end
 
 Ven.Popups = Ven.Popups or {}
 Ven.Popups["VENDETTA_CONFIRM_DELETE"] = {
-	text = "Delete '%s'?",
+	text = "Delete %s?",
 	button1 = "Yes",
 	button2 = "No",
 	OnShow = function(self, data)
