@@ -74,6 +74,20 @@ function Ven.GetClassIcon(classFile)
 	return ""
 end
 
+function Ven.GetCircularClassIcon(classFile)
+	if classFile and classCoords[classFile] then
+		local c = classCoords[classFile]
+		return string.format(
+			"|TInterface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES:18:18:0:0:256:256:%d:%d:%d:%d|t",
+			c[1] * 256 + 6,
+			c[2] * 256 - 6,
+			c[3] * 256 + 6,
+			c[4] * 256 - 6
+		)
+	end
+	return ""
+end
+
 function Ven.StyleFlatButton(btn)
 	btn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
 	btn:SetBackdropColor(0.15, 0.15, 0.15, 0.8)
@@ -108,9 +122,65 @@ popup:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interfa
 popup:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
 popup:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
 popup:Hide()
-popup.text = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-popup.text:SetPoint("TOP", 0, -20)
-popup.text:SetWidth(330)
+popup.titleFrame = CreateFrame("Frame", nil, popup)
+popup.titleFrame:SetHeight(20)
+popup.titleFrame:SetPoint("TOP", 0, -20)
+
+popup.textPrefix = popup.titleFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+popup.textPrefix:SetPoint("LEFT", popup.titleFrame, "LEFT", 0, 0)
+
+popup.classIcon = popup.titleFrame:CreateTexture(nil, "OVERLAY", nil, 1)
+popup.classIcon:SetSize(18, 18)
+
+popup.factionIcon = popup.titleFrame:CreateTexture(nil, "OVERLAY", nil, 2)
+popup.factionIcon:SetSize(12, 12)
+popup.factionIcon:SetPoint("BOTTOMRIGHT", popup.classIcon, "BOTTOMRIGHT", 4, -4)
+
+popup.textName = popup.titleFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+
+popup.textDesc = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+popup.textDesc:SetPoint("TOP", popup.titleFrame, "BOTTOM", 0, -5)
+popup.textDesc:SetWidth(330)
+
+function Ven.SetPopupTitle(prefix, classFile, faction, nameStr, desc)
+	popup.textPrefix:SetText(prefix or "")
+	popup.textName:SetText(nameStr or "")
+	popup.textDesc:SetText(desc or "")
+	
+	local totalWidth = popup.textPrefix:GetStringWidth()
+	
+	if classFile and classCoords[classFile] then
+		local c = classCoords[classFile]
+		popup.classIcon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
+		popup.classIcon:SetTexCoord(c[1], c[2], c[3], c[4])
+		popup.classIcon:SetPoint("LEFT", popup.textPrefix, "RIGHT", 4, 0)
+		popup.classIcon:Show()
+		
+		totalWidth = totalWidth + 18 + 4
+		
+		if faction == "Alliance" then
+			popup.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Alliance")
+			popup.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+			popup.factionIcon:Show()
+		elseif faction == "Horde" then
+			popup.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Horde")
+			popup.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+			popup.factionIcon:Show()
+		else
+			popup.factionIcon:Hide()
+		end
+		
+		popup.textName:SetPoint("LEFT", popup.classIcon, "RIGHT", 4, 0)
+		totalWidth = totalWidth + 4
+	else
+		popup.classIcon:Hide()
+		popup.factionIcon:Hide()
+		popup.textName:SetPoint("LEFT", popup.textPrefix, "RIGHT", 0, 0)
+	end
+	
+	totalWidth = totalWidth + popup.textName:GetStringWidth()
+	popup.titleFrame:SetWidth(totalWidth)
+end
 
 popup.editBox = CreateFrame("EditBox", nil, popup, "BackdropTemplate")
 popup.editBox:SetSize(200, 24)
@@ -121,6 +191,17 @@ popup.editBox:SetBackdropColor(0, 0, 0, 0.8)
 popup.editBox:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
 popup.editBox:SetTextInsets(6, 6, 0, 0)
 popup.editBox:SetAutoFocus(false)
+
+popup.editBox.placeholder = popup.editBox:CreateFontString(nil, "OVERLAY", "GameFontDisable")
+popup.editBox.placeholder:SetPoint("LEFT", popup.editBox, "LEFT", 8, 0)
+
+popup.editBox:SetScript("OnTextChanged", function(self)
+	if self:GetText() == "" then
+		self.placeholder:Show()
+	else
+		self.placeholder:Hide()
+	end
+end)
 
 popup.btn1 = CreateFrame("Button", nil, popup, "BackdropTemplate")
 popup.btn1:SetSize(100, 24)
@@ -134,13 +215,20 @@ Ven.StyleFlatButton(popup.btn2)
 function Ven.ShowPopup(cfg, data)
 	popup.cfg = cfg
 	popup.data = data
-	popup.text:SetText(string.format(cfg.text, data or ""))
 	popup.btn1:SetText(cfg.button1 or "Yes")
 	popup.btn2:SetText(cfg.button2 or "No")
 
 	if cfg.hasEditBox then
+		popup:SetHeight(160)
 		popup.editBox:Show()
+		popup.editBox:SetPoint("CENTER", 0, -10)
 		popup.editBox:SetText("")
+		if cfg.placeholder then
+			popup.editBox.placeholder:SetText(cfg.placeholder)
+			popup.editBox.placeholder:Show()
+		else
+			popup.editBox.placeholder:Hide()
+		end
 		if cfg.maxLetters then
 			popup.editBox:SetMaxLetters(cfg.maxLetters)
 		else
@@ -149,13 +237,22 @@ function Ven.ShowPopup(cfg, data)
 		popup.btn1:SetPoint("BOTTOMLEFT", 60, 15)
 		popup.btn2:SetPoint("BOTTOMRIGHT", -60, 15)
 	else
+		popup:SetHeight(130)
 		popup.editBox:Hide()
-		popup.btn1:SetPoint("BOTTOMLEFT", 60, 25)
-		popup.btn2:SetPoint("BOTTOMRIGHT", -60, 25)
+		popup.btn1:SetPoint("BOTTOMLEFT", 60, 20)
+		popup.btn2:SetPoint("BOTTOMRIGHT", -60, 20)
 	end
 	
 	if cfg.OnShow then
 		cfg.OnShow(popup, data)
+	end
+	
+	if cfg.hasEditBox and cfg.placeholder then
+		if popup.editBox:GetText() == "" then
+			popup.editBox.placeholder:Show()
+		else
+			popup.editBox.placeholder:Hide()
+		end
 	end
 	
 	popup:Show()

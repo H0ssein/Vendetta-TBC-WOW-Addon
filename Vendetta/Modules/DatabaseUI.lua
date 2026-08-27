@@ -52,10 +52,10 @@ Ven.Popups["VENDETTA_CONFIRM_DELETE"] = {
 		local db = Ven.InitHeroDB()
 		local v = (db and db[data]) or Ven.playerCache[data] or Ven.SyncPlayerDataFromOtherHeroes(data)
 		if v then
-			local fIcon = Ven.GetFactionIcon(v.faction) or ""
-			local cIcon = Ven.GetClassIcon(v.classFile) or ""
 			local cColor = Ven.GetClassColor(v.classFile) or "|cFFFFFFFF"
-			self.text:SetText("Delete " .. fIcon .. cIcon .. " " .. cColor .. data .. "|r?")
+			Ven.SetPopupTitle("Delete ", v.classFile, v.faction, cColor .. data .. "|r?")
+		else
+			Ven.SetPopupTitle("Delete ", nil, nil, data .. "?")
 		end
 	end,
 	OnAccept = function(self, data)
@@ -106,12 +106,22 @@ Ven.Popups["VENDETTA_CONFIRM_CLEAR_BOUNTIES"] = {
 }
 
 Ven.Popups["VENDETTA_SET_NOTE"] = {
-	text = "Set note for '%s' (Max 15 chars):",
+	text = "Set note for '%s':",
 	button1 = "Save",
 	button2 = "Cancel",
 	hasEditBox = true,
 	maxLetters = 15,
+	placeholder = "Max 15 chars",
 	OnShow = function(self, data)
+		local db = Ven.InitHeroDB()
+		local v = (db and db[data]) or Ven.playerCache[data] or Ven.SyncPlayerDataFromOtherHeroes(data)
+		if v then
+			local cColor = Ven.GetClassColor(v.classFile) or "|cFFFFFFFF"
+			Ven.SetPopupTitle("Set note for ", v.classFile, v.faction, cColor .. data .. "|r:")
+		else
+			Ven.SetPopupTitle("Set note for ", nil, nil, data .. ":")
+		end
+
 		local rName = GetRealmName() or "Unknown"
 		if VendettaDB[rName] then
 			for heroName, enemies in pairs(VendettaDB[rName]) do
@@ -162,11 +172,22 @@ Ven.Popups["VENDETTA_SET_NOTE"] = {
 }
 
 Ven.Popups["VENDETTA_SET_BOUNTY"] = {
-	text = "Set Bounty Note for '%s'\n(Max 15 chars):",
+	text = "Set Bounty Note for '%s'\n:",
 	button1 = "Save",
 	button2 = "Cancel",
 	hasEditBox = true,
 	maxLetters = 15,
+	placeholder = "Max 15 chars",
+	OnShow = function(self, data)
+		local db = Ven.InitHeroDB()
+		local v = (db and db[data]) or Ven.playerCache[data] or Ven.SyncPlayerDataFromOtherHeroes(data)
+		if v then
+			local cColor = Ven.GetClassColor(v.classFile) or "|cFFFFFFFF"
+			Ven.SetPopupTitle("Set Bounty Note for ", v.classFile, v.faction, cColor .. data .. "|r:")
+		else
+			Ven.SetPopupTitle("Set Bounty Note for ", nil, nil, data .. ":")
+		end
+	end,
 	OnAccept = function(self, data, inputStr)
 		if inputStr and data then
 			local rName = GetRealmName() or "Unknown"
@@ -955,11 +976,33 @@ function Ven.UpdateDBScroll()
 		local r, idx = dbRows[i], offset + i
 		if sortedDB[idx] then
 			local v = sortedDB[idx]
-			local cColor, cIcon = Ven.GetClassColor(v.classFile), Ven.GetClassIcon(v.classFile)
-			local fIcon = Ven.GetFactionIcon(v.faction)
+			local cColor = Ven.GetClassColor(v.classFile) or "|cFFFFFFFF"
 
 			r.playerName = v.name
-			r.name:SetText(fIcon .. cIcon .. " " .. cColor .. v.name .. "|r")
+			r.name:SetText(cColor .. v.name .. "|r")
+			
+			if v.classFile and CLASS_ICON_TCOORDS[v.classFile] then
+				local c = CLASS_ICON_TCOORDS[v.classFile]
+				r.classIcon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
+				r.classIcon:SetTexCoord(c[1], c[2], c[3], c[4])
+				r.classIcon:Show()
+			else
+				r.classIcon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+				r.classIcon:SetTexCoord(0, 1, 0, 1)
+				r.classIcon:Show()
+			end
+			
+			if v.faction == "Alliance" then
+				r.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Alliance")
+				r.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+				r.factionIcon:Show()
+			elseif v.faction == "Horde" then
+				r.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Horde")
+				r.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+				r.factionIcon:Show()
+			else
+				r.factionIcon:Hide()
+			end
 
 			local cleanRealm = string.gsub(string.lower(rName), "[ ']", "-")
 			r.armoryBtn.link = "https://classic-armory.org/character/eu/tbc-anniversary/"
@@ -1093,8 +1136,16 @@ for i = 1, 10 do
 		GameTooltip:Hide()
 	end)
 
+	r.classIcon = r:CreateTexture(nil, "OVERLAY", nil, 1)
+	r.classIcon:SetSize(14, 14)
+	r.classIcon:SetPoint("LEFT", 20, 0)
+
+	r.factionIcon = r:CreateTexture(nil, "OVERLAY", nil, 2)
+	r.factionIcon:SetSize(10, 10)
+	r.factionIcon:SetPoint("BOTTOMRIGHT", r.classIcon, "BOTTOMRIGHT", 3, -3)
+
 	r.name = r:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-	r.name:SetPoint("LEFT", 20, 0)
+	r.name:SetPoint("LEFT", r.classIcon, "RIGHT", 4, 0)
 	r.name:SetShadowOffset(1, -1)
 	r.name:SetShadowColor(0, 0, 0, 1)
 

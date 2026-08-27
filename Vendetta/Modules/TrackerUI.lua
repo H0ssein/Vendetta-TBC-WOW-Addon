@@ -245,8 +245,16 @@ for i = 1, 8 do
 		GameTooltip:Hide()
 	end)
 
+	row.classIcon = row:CreateTexture(nil, "OVERLAY", nil, 1)
+	row.classIcon:SetSize(14, 14)
+	row.classIcon:SetPoint("LEFT", 40, 0)
+
+	row.factionIcon = row:CreateTexture(nil, "OVERLAY", nil, 2)
+	row.factionIcon:SetSize(10, 10)
+	row.factionIcon:SetPoint("BOTTOMRIGHT", row.classIcon, "BOTTOMRIGHT", 3, -3)
+
 	row.nameText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	row.nameText:SetPoint("LEFT", 40, 0)
+	row.nameText:SetPoint("LEFT", row.classIcon, "RIGHT", 4, 0)
 	row.nameText:SetShadowOffset(1, -1)
 	row.nameText:SetShadowColor(0, 0, 0, 1)
 
@@ -455,9 +463,31 @@ function Ven.UpdateTrackerUI()
 		local r, v = rows[rowIdx], wList[i]
 		r.isWantedType = true
 		r.targetName = v.name
-		local cColor, cIcon = Ven.GetClassColor(v.data.classFile), Ven.GetClassIcon(v.data.classFile)
+		local cColor = Ven.GetClassColor(v.data.classFile) or "|cFFFFFFFF"
+		r.nameText:SetText(cColor .. v.name .. "|r")
 
-		r.nameText:SetText((Ven.GetFactionIcon(v.data.faction) or "") .. cIcon .. " " .. cColor .. v.name .. "|r")
+		if v.data.classFile and CLASS_ICON_TCOORDS[v.data.classFile] then
+			local c = CLASS_ICON_TCOORDS[v.data.classFile]
+			r.classIcon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
+			r.classIcon:SetTexCoord(c[1], c[2], c[3], c[4])
+			r.classIcon:Show()
+		else
+			r.classIcon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+			r.classIcon:SetTexCoord(0, 1, 0, 1)
+			r.classIcon:Show()
+		end
+
+		if v.data.faction == "Alliance" then
+			r.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Alliance")
+			r.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+			r.factionIcon:Show()
+		elseif v.data.faction == "Horde" then
+			r.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Horde")
+			r.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+			r.factionIcon:Show()
+		else
+			r.factionIcon:Hide()
+		end
 		r.lvlText = Ven.GetLevelColor(v.data.level)
 			.. ((v.data.level == -1) and "Boss/??" or (v.data.level or "?"))
 			.. "|r"
@@ -489,8 +519,31 @@ function Ven.UpdateTrackerUI()
 		local r, v = rows[rowIdx], tList[i]
 		r.isWantedType = false
 		r.targetName = v.name
-		local cColor, cIcon = Ven.GetClassColor(v.data.classFile), Ven.GetClassIcon(v.data.classFile)
-		r.nameText:SetText((Ven.GetFactionIcon(v.data.faction) or "") .. cIcon .. " " .. cColor .. v.name .. "|r")
+		local cColor = Ven.GetClassColor(v.data.classFile) or "|cFFFFFFFF"
+		r.nameText:SetText(cColor .. v.name .. "|r")
+
+		if v.data.classFile and CLASS_ICON_TCOORDS[v.data.classFile] then
+			local c = CLASS_ICON_TCOORDS[v.data.classFile]
+			r.classIcon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
+			r.classIcon:SetTexCoord(c[1], c[2], c[3], c[4])
+			r.classIcon:Show()
+		else
+			r.classIcon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+			r.classIcon:SetTexCoord(0, 1, 0, 1)
+			r.classIcon:Show()
+		end
+
+		if v.data.faction == "Alliance" then
+			r.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Alliance")
+			r.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+			r.factionIcon:Show()
+		elseif v.data.faction == "Horde" then
+			r.factionIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Horde")
+			r.factionIcon:SetTexCoord(0, 0.625, 0, 0.625)
+			r.factionIcon:Show()
+		else
+			r.factionIcon:Hide()
+		end
 		r.lvlText = Ven.GetLevelColor(v.data.level)
 			.. ((v.data.level == -1) and "Boss/??" or (v.data.level or "?"))
 			.. "|r"
