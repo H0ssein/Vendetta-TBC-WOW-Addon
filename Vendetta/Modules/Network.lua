@@ -298,13 +298,13 @@ f:SetScript("OnEvent", function(self, event, ...)
 						local cColor = Ven.GetClassColor(hunterClass) or "|cFF00FF00"
 						local hunterLink = "|Hplayer:" .. sName .. "|h" .. cColor .. "[" .. sName .. "]|r|h"
 						
-						local cFile = Ven.playerCache[p1] and Ven.playerCache[p1].classFile or nil
+						local cFile = (Ven.playerCache[p1] and Ven.playerCache[p1].classFile) or (db[p1] and db[p1].classFile)
 						local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
 						local coloredTarget = tColor .. p1 .. "|r"
 						
 						if db[p1].isBounty then
 							print(
-								"|cFFFFFF00[Vendetta]|r Bounty Hunter "
+								"|cFF00FFFF[Vendetta]|r Bounty Hunter "
 									.. hunterLink
 									.. " has spotted your BOUNTY target: "
 									.. coloredTarget
@@ -318,7 +318,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 							end
 						else
 							print(
-								"|cFFFFFF00[Vendetta]|r Ally "
+								"|cFF00FFFF[Vendetta]|r Ally "
 									.. hunterLink
 									.. " has spotted your WANTED target: "
 									.. coloredTarget
@@ -350,9 +350,11 @@ f:SetScript("OnEvent", function(self, event, ...)
 				local hunterLink = "|Hplayer:" .. sName .. "|h" .. cColor .. "[" .. sName .. "]|r|h"
 				local targetType = (db[target] and db[target].isBounty) and "BOUNTY" or "WANTED"
 				
-				local cFile = Ven.playerCache[target] and Ven.playerCache[target].classFile or nil
+				local cFile = (Ven.playerCache[target] and Ven.playerCache[target].classFile) or (db[target] and db[target].classFile)
 				local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
 				local coloredTarget = tColor .. target .. "|r"
+
+				local pureLoc = string.gsub(loc or "Unknown", " %(Layer [^%)]+%)$", "")
 
 				if killCount > 1 then
 					print(
@@ -365,7 +367,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 							.. " |cFFFF0000"
 							.. killCount
 							.. " times|r! at "
-							.. (loc or "Unknown")
+							.. pureLoc
 							.. suffixStr
 							.. "."
 					)
@@ -378,7 +380,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 							.. " target: "
 							.. coloredTarget
 							.. " at "
-							.. (loc or "Unknown")
+							.. pureLoc
 							.. suffixStr
 							.. "."
 					)
@@ -388,7 +390,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 					local faction = Ven.playerCache[target] and Ven.playerCache[target].faction or nil
 					Ven.ShowToast(
 						targetType .. " EXECUTED!",
-						cColor .. sName .. "|r executed |cFFFF0000" .. target .. "|r at " .. (loc or "Unknown"),
+						cColor .. sName .. "|r executed " .. coloredTarget .. " at " .. pureLoc,
 						hunterClass,
 						faction
 					)
