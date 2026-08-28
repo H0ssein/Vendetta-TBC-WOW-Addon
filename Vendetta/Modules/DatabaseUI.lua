@@ -254,6 +254,7 @@ Ven.Popups["VENDETTA_ADD_PLAYER"] = {
 	button1 = "Add",
 	button2 = "Cancel",
 	hasEditBox = true,
+	placeholder = "Enter Player Name",
 	OnAccept = function(self, data, inputStr)
 		if inputStr then
 			local name = inputStr
@@ -322,6 +323,8 @@ optBtn:SetScript("OnClick", function()
 	if Ven.OptionsFrame:IsShown() then
 		Ven.OptionsFrame:Hide()
 	else
+		Ven.OptionsFrame.wasDBOpen = true
+		DBFrame:Hide()
 		Ven.OptionsFrame:Show()
 	end
 end)
@@ -343,6 +346,10 @@ searchBox:SetTextInsets(6, 20, 0, 0)
 searchBox:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
 searchBox:SetBackdropColor(0, 0, 0, 0.5)
 searchBox:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+
+searchBox:SetScript("OnEscapePressed", function(self)
+	self:ClearFocus()
+end)
 
 searchBox.placeholder = searchBox:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 searchBox.placeholder:SetPoint("LEFT", 6, 0)
@@ -580,8 +587,12 @@ addPlayerBtn:SetPoint("BOTTOMRIGHT", -15, 12)
 Ven.StyleFlatButton(addPlayerBtn)
 addPlayerBtn:SetText("Add Player")
 addPlayerBtn:SetScript("OnClick", function()
+	Ven.SetPopupTitle("Add Player to Database", nil, nil, "", "")
 	Ven.ShowPopup(Ven.Popups["VENDETTA_ADD_PLAYER"])
 end)
+DBFrame:Hide()
+Ven.DBFrame = DBFrame
+tinsert(UISpecialFrames, "VendettaDBFrame")
 
 DBFrame:SetScript("OnShow", function()
 	currentSort = "lastCombat"

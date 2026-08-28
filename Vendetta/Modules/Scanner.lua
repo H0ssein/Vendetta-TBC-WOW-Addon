@@ -404,6 +404,9 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 				trackTargetsWorld = true,
 				trackWantedsInst = true,
 				trackWantedsWorld = true,
+				whitelistData = true,
+				whitelist = true,
+				whitelistMigrated = true,
 			}
 			for eName, eData in pairs(db) do
 				if type(eData) == "table" and not reservedKeys[eName] then
@@ -484,12 +487,13 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 				end
 
 				if not UnitIsDeadOrGhost(unit) then
-					local isPersWanted = type(db[name]) == "table" and db[name].isWanted
-					local isPersBounty = type(db[name]) == "table" and db[name].isBounty
-					local isNetBounty = db.enableNetwork and Ven.BountyBoard and Ven.BountyBoard[name]
-					local isNetWanted = db.enableNetwork and Ven.WantedBoard and Ven.WantedBoard[name]
-					local isAcctWanted = db.showAccountWide and Ven.AccountWanteds and Ven.AccountWanteds[name]
-					local isAcctBounty = db.showAccountWide and Ven.AccountBounties and Ven.AccountBounties[name]
+					local isWhitelisted = type(db.whitelistData) == "table" and db.whitelistData[name] ~= nil
+					local isPersWanted = not isWhitelisted and type(db[name]) == "table" and db[name].isWanted
+					local isPersBounty = not isWhitelisted and type(db[name]) == "table" and db[name].isBounty
+					local isNetBounty = not isWhitelisted and db.enableNetwork and Ven.BountyBoard and Ven.BountyBoard[name]
+					local isNetWanted = not isWhitelisted and db.enableNetwork and Ven.WantedBoard and Ven.WantedBoard[name]
+					local isAcctWanted = not isWhitelisted and db.showAccountWide and Ven.AccountWanteds and Ven.AccountWanteds[name]
+					local isAcctBounty = not isWhitelisted and db.showAccountWide and Ven.AccountBounties and Ven.AccountBounties[name]
 
 					local playedSpotSound = false
 
@@ -618,7 +622,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 						end
 					end
 
-					if db.enableNetwork and not inInstance and UnitCanAttack("player", unit) then
+					if not isWhitelisted and db.enableNetwork and not inInstance and UnitCanAttack("player", unit) then
 						if isNetBounty or isNetWanted then
 							local t = GetTime()
 							local timeSinceLastBountySeen = t - (Ven.bountyLastSeen and Ven.bountyLastSeen[name] or 0)

@@ -14,6 +14,14 @@ f:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\
 f:SetBackdropColor(0.05, 0.05, 0.05, 0.92)
 f:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.9)
 f:Hide()
+tinsert(UISpecialFrames, "VendettaOptionsFrame")
+
+f:SetScript("OnHide", function(self)
+	if self.wasDBOpen and Ven.DBFrame then
+		Ven.DBFrame:Show()
+		self.wasDBOpen = false
+	end
+end)
 
 f.title = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
 f.title:SetPoint("TOP", 0, -12)
@@ -200,6 +208,10 @@ local function CreateSlider(parent, text, dbKey, yOffset, minVal, maxVal, step, 
 	editBox:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
 	editBox:SetBackdropColor(0.05, 0.05, 0.05, 0.9)
 	editBox:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+
+	editBox:SetScript("OnEscapePressed", function(self)
+		self:ClearFocus()
+	end)
 
 	slider:SetScript("OnShow", function(self)
 		local val = Ven.InitHeroDB()[dbKey]
@@ -559,6 +571,7 @@ wlFrame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Inter
 wlFrame:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
 wlFrame:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.9)
 wlFrame:Hide()
+tinsert(UISpecialFrames, "Ven_WhitelistFrame")
 
 wlFrame.title = wlFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
 wlFrame.title:SetPoint("TOP", 0, -10)
@@ -578,6 +591,7 @@ local wlNameBox = CreateFrame("EditBox", "VenWlNameBox", wlFrame, "InputBoxTempl
 wlNameBox:SetSize(90, 20)
 wlNameBox:SetPoint("TOPLEFT", 15, -45)
 wlNameBox:SetAutoFocus(false)
+wlNameBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
 local wlNameLbl = wlFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 wlNameLbl:SetPoint("BOTTOMLEFT", wlNameBox, "TOPLEFT", 0, 3)
 wlNameLbl:SetText("Name:")
@@ -586,6 +600,7 @@ local wlNoteBox = CreateFrame("EditBox", "VenWlNoteBox", wlFrame, "InputBoxTempl
 wlNoteBox:SetSize(100, 20)
 wlNoteBox:SetPoint("LEFT", wlNameBox, "RIGHT", 15, 0)
 wlNoteBox:SetAutoFocus(false)
+wlNoteBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
 wlNoteBox:SetMaxLetters(10)
 local wlNoteLbl = wlFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 wlNoteLbl:SetPoint("BOTTOMLEFT", wlNoteBox, "TOPLEFT", 0, 3)
@@ -612,6 +627,7 @@ Ven.Popups["VENDETTA_SET_WHITELIST_NOTE"] = {
 	button1 = "Save",
 	button2 = "Cancel",
 	hasEditBox = true,
+	placeholder = "Enter Note (Max 10 chars)",
 	maxLetters = 10,
 	OnShow = function(self, data)
 		local db = Ven.InitHeroDB()

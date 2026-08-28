@@ -121,7 +121,21 @@ popup:SetFrameStrata("TOOLTIP")
 popup:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
 popup:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
 popup:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+popup:EnableKeyboard(true)
+popup:SetPropagateKeyboardInput(true)
 popup:Hide()
+
+popup:SetScript("OnKeyDown", function(self, key)
+	if key == "ESCAPE" then
+		self:SetPropagateKeyboardInput(false)
+		if self.cfg and self.cfg.OnCancel then
+			self.cfg.OnCancel(self, self.data)
+		end
+		Ven.HidePopup()
+	else
+		self:SetPropagateKeyboardInput(true)
+	end
+end)
 popup.titleFrame = CreateFrame("Frame", nil, popup)
 popup.titleFrame:SetHeight(20)
 popup.titleFrame:SetPoint("TOP", 0, -20)
@@ -183,13 +197,13 @@ function Ven.SetPopupTitle(prefix, classFile, faction, nameStr, desc)
 end
 
 popup.editBox = CreateFrame("EditBox", nil, popup, "BackdropTemplate")
-popup.editBox:SetSize(200, 24)
+popup.editBox:SetSize(240, 24)
 popup.editBox:SetPoint("CENTER", 0, 5)
 popup.editBox:SetFontObject("GameFontHighlight")
 popup.editBox:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-popup.editBox:SetBackdropColor(0, 0, 0, 0.8)
-popup.editBox:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
-popup.editBox:SetTextInsets(6, 6, 0, 0)
+popup.editBox:SetBackdropColor(0.05, 0.05, 0.05, 0.9)
+popup.editBox:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+popup.editBox:SetTextInsets(8, 8, 0, 0)
 popup.editBox:SetAutoFocus(false)
 
 popup.editBox.placeholder = popup.editBox:CreateFontString(nil, "OVERLAY", "GameFontDisable")
@@ -203,13 +217,17 @@ popup.editBox:SetScript("OnTextChanged", function(self)
 	end
 end)
 
+popup.editBox:SetScript("OnEscapePressed", function(self)
+	self:ClearFocus()
+end)
+
 popup.btn1 = CreateFrame("Button", nil, popup, "BackdropTemplate")
-popup.btn1:SetSize(100, 24)
-popup.btn1:SetPoint("BOTTOMLEFT", 60, 15)
+popup.btn1:SetSize(90, 24)
+popup.btn1:SetPoint("BOTTOMLEFT", 75, 15)
 Ven.StyleFlatButton(popup.btn1)
 popup.btn2 = CreateFrame("Button", nil, popup, "BackdropTemplate")
-popup.btn2:SetSize(100, 24)
-popup.btn2:SetPoint("BOTTOMRIGHT", -60, 15)
+popup.btn2:SetSize(90, 24)
+popup.btn2:SetPoint("BOTTOMRIGHT", -75, 15)
 Ven.StyleFlatButton(popup.btn2)
 
 function Ven.ShowPopup(cfg, data)
@@ -218,10 +236,14 @@ function Ven.ShowPopup(cfg, data)
 	popup.btn1:SetText(cfg.button1 or "Yes")
 	popup.btn2:SetText(cfg.button2 or "No")
 
+	if GameTooltip:IsShown() then
+		GameTooltip:Hide()
+	end
+
 	if cfg.hasEditBox then
-		popup:SetHeight(160)
+		popup:SetHeight(110)
 		popup.editBox:Show()
-		popup.editBox:SetPoint("CENTER", 0, -10)
+		popup.editBox:SetPoint("CENTER", 0, -5)
 		popup.editBox:SetText("")
 		if cfg.placeholder then
 			popup.editBox.placeholder:SetText(cfg.placeholder)
@@ -234,13 +256,13 @@ function Ven.ShowPopup(cfg, data)
 		else
 			popup.editBox:SetMaxLetters(255)
 		end
-		popup.btn1:SetPoint("BOTTOMLEFT", 60, 15)
-		popup.btn2:SetPoint("BOTTOMRIGHT", -60, 15)
+		popup.btn1:SetPoint("BOTTOMLEFT", 75, 15)
+		popup.btn2:SetPoint("BOTTOMRIGHT", -75, 15)
 	else
-		popup:SetHeight(130)
+		popup:SetHeight(90)
 		popup.editBox:Hide()
-		popup.btn1:SetPoint("BOTTOMLEFT", 60, 20)
-		popup.btn2:SetPoint("BOTTOMRIGHT", -60, 20)
+		popup.btn1:SetPoint("BOTTOMLEFT", 75, 15)
+		popup.btn2:SetPoint("BOTTOMRIGHT", -75, 15)
 	end
 	
 	if cfg.OnShow then
@@ -277,11 +299,11 @@ popup.btn2:SetScript("OnClick", function()
 	if popup.cfg and popup.cfg.OnCancel then
 		popup.cfg.OnCancel(popup, popup.data)
 	end
-	popup:Hide()
+	Ven.HidePopup()
 end)
-popup.editBox:SetScript("OnEscapePressed", function(self)
+function Ven.HidePopup()
 	popup:Hide()
-end)
+end
 popup.editBox:SetScript("OnEnterPressed", function(self)
 	popup.btn1:Click()
 end)
