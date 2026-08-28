@@ -297,13 +297,18 @@ f:SetScript("OnEvent", function(self, event, ...)
 
 						local cColor = Ven.GetClassColor(hunterClass) or "|cFF00FF00"
 						local hunterLink = "|Hplayer:" .. sName .. "|h" .. cColor .. "[" .. sName .. "]|r|h"
+						
+						local cFile = Ven.playerCache[p1] and Ven.playerCache[p1].classFile or nil
+						local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
+						local coloredTarget = tColor .. p1 .. "|r"
+						
 						if db[p1].isBounty then
 							print(
 								"|cFFFFFF00[Vendetta]|r Bounty Hunter "
 									.. hunterLink
-									.. " has spotted your BOUNTY target: |cFFFF0000"
-									.. p1
-									.. "|r at "
+									.. " has spotted your BOUNTY target: "
+									.. coloredTarget
+									.. " at "
 									.. p2
 									.. "."
 							)
@@ -315,9 +320,9 @@ f:SetScript("OnEvent", function(self, event, ...)
 							print(
 								"|cFFFFFF00[Vendetta]|r Ally "
 									.. hunterLink
-									.. " has spotted your WANTED target: |cFFFF0000"
-									.. p1
-									.. "|r at "
+									.. " has spotted your WANTED target: "
+									.. coloredTarget
+									.. " at "
 									.. p2
 									.. "."
 							)
@@ -344,6 +349,10 @@ f:SetScript("OnEvent", function(self, event, ...)
 				local cColor = Ven.GetClassColor(hunterClass) or "|cFF00FF00"
 				local hunterLink = "|Hplayer:" .. sName .. "|h" .. cColor .. "[" .. sName .. "]|r|h"
 				local targetType = (db[target] and db[target].isBounty) and "BOUNTY" or "WANTED"
+				
+				local cFile = Ven.playerCache[target] and Ven.playerCache[target].classFile or nil
+				local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
+				local coloredTarget = tColor .. target .. "|r"
 
 				if killCount > 1 then
 					print(
@@ -351,9 +360,9 @@ f:SetScript("OnEvent", function(self, event, ...)
 							.. hunterLink
 							.. " has executed your "
 							.. targetType
-							.. " target: |cFFFF0000"
-							.. target
-							.. "|r |cFFFF0000"
+							.. " target: "
+							.. coloredTarget
+							.. " |cFFFF0000"
 							.. killCount
 							.. " times|r! at "
 							.. (loc or "Unknown")
@@ -366,9 +375,9 @@ f:SetScript("OnEvent", function(self, event, ...)
 							.. hunterLink
 							.. " has executed your "
 							.. targetType
-							.. " target: |cFFFF0000"
-							.. target
-							.. "|r at "
+							.. " target: "
+							.. coloredTarget
+							.. " at "
 							.. (loc or "Unknown")
 							.. suffixStr
 							.. "."
@@ -409,11 +418,14 @@ f:SetScript("OnEvent", function(self, event, ...)
 							local oColor = Ven.GetClassColor(Ven.SenderClasses and Ven.SenderClasses[sName])
 								or "|cFF00FF00"
 							local ownerLink = "|Hplayer:" .. sName .. "|h" .. oColor .. "[" .. sName .. "]|r|h"
+							local cFile = Ven.playerCache[target] and Ven.playerCache[target].classFile or nil
+							local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
+							local coloredTarget = tColor .. target .. "|r"
 							if kCount > 1 then
 								print(
-									"|cFF00FFFF[Vendetta]|r Delivery Confirmed! Execution report for |cFFFF0000"
-										.. target
-										.. "|r (|cFFFF0000"
+									"|cFF00FFFF[Vendetta]|r Delivery Confirmed! Execution report for "
+										.. coloredTarget
+										.. " (|cFFFF0000"
 										.. kCount
 										.. " kills|r)"
 										.. timeStr
@@ -423,9 +435,8 @@ f:SetScript("OnEvent", function(self, event, ...)
 								)
 							else
 								print(
-									"|cFF00FFFF[Vendetta]|r Delivery Confirmed! Execution report for |cFFFF0000"
-										.. target
-										.. "|r"
+									"|cFF00FFFF[Vendetta]|r Delivery Confirmed! Execution report for "
+										.. coloredTarget
 										.. timeStr
 										.. " was successfully received by "
 										.. ownerLink
