@@ -185,9 +185,11 @@ local function RegisterKill(enemyName, enemyGUID)
 						end
 					end
 					if not found then
+						local myName = UnitName("player")
+						local _, myClass = UnitClass("player")
 						table.insert(
 							Ven.PendingBounties,
-							{ owner = owner, target = enemyName, timestamp = killTimestamp, loc = killLoc, count = 1 }
+							{ owner = owner, target = enemyName, timestamp = killTimestamp, loc = killLoc, count = 1, killer = myName, killerClass = myClass }
 						)
 					end
 				end

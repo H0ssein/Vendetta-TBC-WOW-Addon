@@ -82,21 +82,26 @@ function Ven.ProcessPendingBounties()
 	if not Ven.PendingBounties or #Ven.PendingBounties == 0 then
 		return
 	end
+	local myName = UnitName("player")
 	local _, myClass = UnitClass("player")
 	for i, data in ipairs(Ven.PendingBounties) do
-		local count = data.count or 1
-		local msg = "VEN_SYS_MSG~KILL_REPORT~"
-			.. data.target
-			.. "~"
-			.. (data.timestamp or time())
-			.. "~"
-			.. (data.loc or "Unknown")
-			.. "~"
-			.. tostring(myClass)
-			.. "~"
-			.. tostring(count)
-		Ven.recentSystemWhispers[string.lower(data.owner)] = GetTime()
-		SendChatMessage(msg, "WHISPER", nil, data.owner)
+		local killer = data.killer or myName
+		if killer == myName then
+			local count = data.count or 1
+			local kClass = data.killerClass or myClass
+			local msg = "VEN_SYS_MSG~KILL_REPORT~"
+				.. data.target
+				.. "~"
+				.. (data.timestamp or time())
+				.. "~"
+				.. (data.loc or "Unknown")
+				.. "~"
+				.. tostring(kClass)
+				.. "~"
+				.. tostring(count)
+			Ven.recentSystemWhispers[string.lower(data.owner)] = GetTime()
+			SendChatMessage(msg, "WHISPER", nil, data.owner)
+		end
 	end
 end
 
