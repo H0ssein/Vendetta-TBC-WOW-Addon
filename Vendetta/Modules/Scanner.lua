@@ -224,7 +224,7 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 				wasDBVisibleBeforeCombat = true
 				Ven.DBFrame:Hide()
 			end
-			if Ven.TrackerFrame and not InCombatLockdown() then
+			if Ven.TrackerFrame then
 				Ven.TrackerFrame:Hide()
 			end
 			if Ven.QuickCopy then
@@ -245,9 +245,6 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			Ven.UpdateTrackerUI()
 		end
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		if Ven.ShouldIgnoreCombat() then
-			return
-		end
 		local _, subevent, _, sourceGUID, sourceName, _, _, destGUID, destName = CombatLogGetCurrentEventInfo()
 		local isSourcePlayer, isDestPlayer =
 			sourceGUID and string.match(sourceGUID, "^Player%-"), destGUID and string.match(destGUID, "^Player%-")
@@ -276,10 +273,14 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			and destGUID ~= myGUID
 			and dName ~= myName
 		then
-			RegisterKill(dName, destGUID)
+			if not Ven.ShouldIgnoreKills() then
+				RegisterKill(dName, destGUID)
+			end
 		elseif subevent == "UNIT_DIED" and isDestPlayer and destGUID ~= myGUID and dName ~= myName then
 			if dName and recentDamageDealt[dName] and (GetTime() - recentDamageDealt[dName].time < 15) then
-				RegisterKill(dName, recentDamageDealt[dName].guid)
+				if not Ven.ShouldIgnoreKills() then
+					RegisterKill(dName, recentDamageDealt[dName].guid)
+				end
 				recentDamageDealt[dName] = nil
 			end
 		elseif
@@ -292,7 +293,7 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			recentAttackers[sName] = { time = GetTime(), guid = sourceGUID }
 		end
 	elseif event == "PLAYER_DEAD" then
-		if Ven.ShouldIgnoreCombat() then
+		if Ven.ShouldIgnoreKills() then
 			recentAttackers = {}
 			return
 		end
@@ -434,12 +435,6 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 		return
 	end
 	scanTimer = 0
-	if Ven.ShouldIgnoreCombat() then
-		if Ven.TrackerFrame and Ven.TrackerFrame:IsShown() then
-			Ven.TrackerFrame:Hide()
-		end
-		return
-	end
 
 	local db = Ven.InitHeroDB()
 	local isSafeZone = (GetZonePVPInfo() == "sanctuary")

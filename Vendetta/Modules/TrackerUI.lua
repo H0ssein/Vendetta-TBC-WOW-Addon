@@ -313,9 +313,7 @@ function Ven.UpdateTrackerUI()
 	local isPvEInst = inInstance and (instanceType == "party" or instanceType == "raid" or instanceType == "scenario")
 
 	if isPvEInst or Ven.isTrackerHidden then
-		if not InCombatLockdown() then
-			f:Hide()
-		end
+		f:Hide()
 		return
 	end
 	if db.hideInCombat and InCombatLockdown() then
@@ -335,9 +333,7 @@ function Ven.UpdateTrackerUI()
 		and not db.trackNetworkBounties
 		and db.trackNetworkWanteds == false
 	then
-		if not InCombatLockdown() then
-			f:Hide()
-		end
+		f:Hide()
 		return
 	end
 

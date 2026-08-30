@@ -317,7 +317,7 @@ function Ven.GetEffectiveTrackerMode()
 	return db.trackerModeWorld or 1
 end
 
-function Ven.ShouldIgnoreCombat()
+function Ven.ShouldIgnoreKills()
 	local inInstance, instanceType = IsInInstance()
 	if inInstance and (instanceType == "party" or instanceType == "raid" or instanceType == "scenario") then
 		return true
