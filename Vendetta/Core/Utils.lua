@@ -331,9 +331,15 @@ function Ven.ShouldIgnoreKills()
 end
 
 local muteRestoreTimer
-function Ven.AlertPlaySound(soundId, isForced)
+function Ven.AlertPlaySound(soundId, isForced, instPlay)
 	if not soundId or soundId == -1 then
 		return
+	end
+	local inInstance, instanceType = IsInInstance()
+	if inInstance and (instanceType == "pvp" or instanceType == "arena") then
+		if not instPlay then
+			return
+		end
 	end
 	local function Play(id, chan)
 		if type(id) == "number" and id > 100000 then

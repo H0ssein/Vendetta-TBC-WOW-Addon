@@ -136,9 +136,9 @@ local function CreateTab(id, name, width, xOffset, contentHeight)
 	return panel
 end
 
-local panel1 = CreateTab(1, "Target Tracking", 100, 12, 300)
+local panel1 = CreateTab(1, "Target Tracking", 100, 12, 340)
 local panel2 = CreateTab(2, "Wanteds", 90, 115, 300)
-local panel3 = CreateTab(3, "Bounties", 110, 208, 340)
+local panel3 = CreateTab(3, "Bounties", 110, 208, 400)
 local panel4 = CreateTab(4, "General", 80, 321, 360)
 
 local function SelectTab(id)
@@ -341,7 +341,7 @@ Ven_SoundMenu:SetScript("OnUpdate", function(self)
 end)
 Ven_SoundMenu.buttons = {}
 
-local function ToggleSoundMenu(dbKey, dropFrame, defaultIdx, soundList, forceCB)
+local function ToggleSoundMenu(dbKey, dropFrame, defaultIdx, soundList, forceCB, instCB)
 	if Ven_SoundMenu:IsShown() and Ven_SoundMenu.currentKey == dbKey then
 		Ven_SoundMenu:Hide()
 		return
@@ -407,9 +407,17 @@ local function ToggleSoundMenu(dbKey, dropFrame, defaultIdx, soundList, forceCB)
 				if i == 1 then
 					forceCB:SetAlpha(0.3)
 					forceCB:Disable()
+					if instCB then
+						instCB:SetAlpha(0.3)
+						instCB:Disable()
+					end
 				else
 					forceCB:SetAlpha(1)
 					forceCB:Enable()
+					if instCB then
+						instCB:SetAlpha(1)
+						instCB:Enable()
+					end
 				end
 			end
 			Ven_SoundMenu:Hide()
@@ -420,18 +428,36 @@ local function ToggleSoundMenu(dbKey, dropFrame, defaultIdx, soundList, forceCB)
 	Ven_SoundMenu:Show()
 end
 
-local function CreateSoundDrop(parent, label, dbKey, forceDbKey, yOffset, defaultIdx, soundList)
-	local lbl = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	lbl:SetPoint("TOPLEFT", 25, yOffset)
+local function CreateSoundDrop(parent, label, dbKey, instDbKey, forceDbKey, yOffset, defaultIdx, soundList, instDefault)
+	local container = CreateFrame("Frame", nil, parent)
+	container:SetSize(370, 60)
+	container:SetPoint("TOPLEFT", 15, yOffset)
+
+	local lbl = container:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	lbl:SetPoint("TOPLEFT", 12, -10)
 	lbl:SetText(label)
 	lbl:SetShadowOffset(1, -1)
 	lbl:SetShadowColor(0, 0, 0, 1)
-	local drop = CreateFrame("Button", "VenOptDrop_" .. dbKey, parent, "UIDropDownMenuTemplate")
-	drop:SetPoint("TOPLEFT", 175, yOffset + 7)
-	UIDropDownMenu_SetWidth(drop, 110)
-	local forceCB = CreateFrame("CheckButton", "VenOptForce_" .. dbKey, parent, "UICheckButtonTemplate")
-	forceCB:SetSize(24, 24)
-	forceCB:SetPoint("LEFT", drop, "RIGHT", -10, 3)
+
+	local drop = CreateFrame("Button", "VenOptDrop_" .. dbKey, container, "UIDropDownMenuTemplate")
+	drop:SetPoint("TOPLEFT", -5, -30)
+	UIDropDownMenu_SetWidth(drop, 120)
+
+	local instCB = CreateFrame("CheckButton", "VenOptInst_" .. dbKey, container, "UICheckButtonTemplate")
+	instCB:SetSize(22, 22)
+	instCB:SetPoint("LEFT", drop, "RIGHT", -10, 3)
+	local iTxt = _G[instCB:GetName() .. "Text"]
+	iTxt:SetFontObject("GameFontHighlightSmall")
+	iTxt:SetText("BG/Arena")
+	iTxt:SetShadowOffset(1, -1)
+	iTxt:SetShadowColor(0, 0, 0, 1)
+	instCB:SetScript("OnClick", function(self)
+		Ven.InitHeroDB()[instDbKey] = self:GetChecked()
+	end)
+
+	local forceCB = CreateFrame("CheckButton", "VenOptForce_" .. dbKey, container, "UICheckButtonTemplate")
+	forceCB:SetSize(22, 22)
+	forceCB:SetPoint("LEFT", instCB, "RIGHT", 65, 0)
 	local fTxt = _G[forceCB:GetName() .. "Text"]
 	fTxt:SetFontObject("GameFontHighlightSmall")
 	fTxt:SetText("Force Play")
@@ -442,7 +468,7 @@ local function CreateSoundDrop(parent, label, dbKey, forceDbKey, yOffset, defaul
 	end)
 
 	_G[drop:GetName() .. "Button"]:SetScript("OnClick", function()
-		ToggleSoundMenu(dbKey, drop, defaultIdx, soundList, forceCB)
+		ToggleSoundMenu(dbKey, drop, defaultIdx, soundList, forceCB, instCB)
 	end)
 	drop:HookScript("OnShow", function(self)
 		local idx = Ven.InitHeroDB()[dbKey] or defaultIdx
@@ -450,13 +476,22 @@ local function CreateSoundDrop(parent, label, dbKey, forceDbKey, yOffset, defaul
 			idx = defaultIdx
 		end
 		_G[self:GetName() .. "Text"]:SetText(soundList[idx].name)
+		
+		local instVal = Ven.InitHeroDB()[instDbKey]
+		if instVal == nil then instVal = instDefault end
+		instCB:SetChecked(instVal)
+		
 		forceCB:SetChecked(Ven.InitHeroDB()[forceDbKey] or false)
 		if idx == 1 then
 			forceCB:SetAlpha(0.3)
 			forceCB:Disable()
+			instCB:SetAlpha(0.3)
+			instCB:Disable()
 		else
 			forceCB:SetAlpha(1)
 			forceCB:Enable()
+			instCB:SetAlpha(1)
+			instCB:Enable()
 		end
 	end)
 end
@@ -468,15 +503,15 @@ CreateCheck(panel1, "Track Enemies Targeting You (Battlegrounds & Arenas)", "tra
 CreateCheck(panel1, "Track Friendly Players Targeting You (Battlegrounds & Arenas)", "trackAlliesInst", -125, false)
 CreateCheck(panel1, "Include Party/Raid Members", "trackGroupMembers", -155, false)
 CreateHeader(panel1, "Audio Alerts", -195)
-CreateSoundDrop(panel1, "Enemy Targeting You:", "targetSoundIdx", "targetForceBG", -220, 2, Ven.soundList)
-CreateSoundDrop(panel1, "Friendly Targeting You:", "friendlySoundIdx", "friendlyForceBG", -260, 14, Ven.soundList)
+CreateSoundDrop(panel1, "Enemy Targeting You:", "targetSoundIdx", "targetInstPlay", "targetForceBG", -220, 2, Ven.soundList, false)
+CreateSoundDrop(panel1, "Friendly Targeting You:", "friendlySoundIdx", "friendlyInstPlay", "friendlyForceBG", -285, 14, Ven.soundList, false)
 
 CreateHeader(panel2, "Radar Settings", -15)
 CreateCheck(panel2, "Track Wanted Players (Open World)", "trackWantedsWorld", -35, true)
 CreateCheck(panel2, "Track Wanted Players (Battlegrounds/Arenas)", "trackWantedsInst", -65, true)
 CreateHeader(panel2, "Audio Alerts", -105)
-CreateSoundDrop(panel2, "Wanted Player Spotted:", "wantedSoundIdx", "wantedForceBG", -130, 3, Ven.soundList)
-CreateSoundDrop(panel2, "Wanted Player Killed:", "wantedKillSoundIdx", "wantedKillForceBG", -170, 3, Ven.killSoundList)
+CreateSoundDrop(panel2, "Wanted Player Spotted:", "wantedSoundIdx", "wantedInstPlay", "wantedForceBG", -130, 3, Ven.soundList, true)
+CreateSoundDrop(panel2, "Wanted Player Killed:", "wantedKillSoundIdx", "wantedKillInstPlay", "wantedKillForceBG", -195, 3, Ven.killSoundList, true)
 
 CreateHeader(panel3, "Bounty Network", -15)
 CreateCheck(panel3, "Enable Bounty Network", "enableNetwork", -35, false)
@@ -490,20 +525,12 @@ Ven.StyleFlatButton(openWlBtn)
 openWlBtn:SetText("Manage Whitelist")
 
 CreateHeader(panel3, "Audio Alerts", -190)
-CreateSoundDrop(
-	panel3,
-	"Network Bounty Spotted:",
-	"bountySpottedSoundIdx",
-	"bountySpottedForceBG",
-	-215,
-	4,
-	Ven.soundList
-)
-CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyKillForceBG", -255, 3, Ven.killSoundList)
-CreateHeader(panel3, "Data Management", -295)
+CreateSoundDrop(panel3, "Network Bounty Spotted:", "bountySpottedSoundIdx", "bountySpottedInstPlay", "bountySpottedForceBG", -215, 4, Ven.soundList, true)
+CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyKillInstPlay", "bountyKillForceBG", -280, 3, Ven.killSoundList, true)
+CreateHeader(panel3, "Data Management", -345)
 local clearBountiesBtn = CreateFrame("Button", nil, panel3, "BackdropTemplate")
 clearBountiesBtn:SetSize(180, 22)
-clearBountiesBtn:SetPoint("TOPLEFT", 25, -315)
+clearBountiesBtn:SetPoint("TOPLEFT", 25, -365)
 Ven.StyleFlatButton(clearBountiesBtn)
 clearBountiesBtn:SetText("Clear Network Data")
 clearBountiesBtn:SetScript("OnClick", function()

@@ -314,7 +314,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 							)
 							local sIdx = db.bountySpottedSoundIdx or 4
 							if Ven.soundList[sIdx] then
-								Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.bountySpottedForceBG)
+								Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
 							end
 						else
 							print(
@@ -328,7 +328,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 							)
 							local sIdx = db.wantedSoundIdx or 3
 							if Ven.soundList[sIdx] then
-								Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.wantedForceBG)
+								Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.wantedForceBG, db.wantedInstPlay == nil and true or db.wantedInstPlay)
 							end
 						end
 					end
@@ -396,15 +396,15 @@ f:SetScript("OnEvent", function(self, event, ...)
 					)
 				end
 
-				local kIdx = (db[target] and db[target].isBounty) and (db.bountyKillSoundIdx or 3)
-					or (db.wantedKillSoundIdx or 3)
-				local kForce = (db[target] and db[target].isBounty) and (db.bountyKillForceBG or false)
-					or (db.wantedKillForceBG or false)
+				local isB = db[target] and db[target].isBounty
+				local kIdx = isB and (db.bountyKillSoundIdx or 3) or (db.wantedKillSoundIdx or 3)
+				local kForce = isB and (db.bountyKillForceBG or false) or (db.wantedKillForceBG or false)
+				local kInst = isB and (db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay) or (db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay)
 				if kIdx == 2 then
 					local rIdx = math.random(3, #Ven.killSoundList)
-					Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce)
+					Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
 				elseif kIdx > 2 then
-					Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce)
+					Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
 				end
 			elseif parts[2] == "ACK_KILL" then
 				local target = parts[3]

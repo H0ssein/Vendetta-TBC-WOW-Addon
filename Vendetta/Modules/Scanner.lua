@@ -131,22 +131,22 @@ local function RegisterKill(enemyName, enemyGUID)
 
 	local playedKillSound = false
 	if db[enemyName].isWanted then
-		local kIdx, kForce = db.wantedKillSoundIdx or 3, db.wantedKillForceBG or false
+		local kIdx, kForce, kInst = db.wantedKillSoundIdx or 3, db.wantedKillForceBG or false, db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay
 		if kIdx == 2 then
 			local rIdx = math.random(3, #Ven.killSoundList)
-			Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce)
+			Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
 		else
-			Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce)
+			Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
 		end
 		playedKillSound = true
 	end
 	if db[enemyName].isBounty and not playedKillSound then
-		local kIdx, kForce = db.bountyKillSoundIdx or 2, db.bountyKillForceBG or false
+		local kIdx, kForce, kInst = db.bountyKillSoundIdx or 2, db.bountyKillForceBG or false, db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay
 		if kIdx == 2 then
 			local rIdx = math.random(3, #Ven.killSoundList)
-			Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce)
+			Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
 		else
-			Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce)
+			Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
 		end
 		playedKillSound = true
 	end
@@ -156,12 +156,12 @@ local function RegisterKill(enemyName, enemyGUID)
 	local isNetWanted = Ven.WantedBoard and Ven.WantedBoard[enemyName]
 	if db.enableNetwork and not inInst and (isNetBounty or isNetWanted) then
 		if not playedKillSound then
-			local bkIdx, bkForce = db.bountyKillSoundIdx or 2, db.bountyKillForceBG or false
+			local bkIdx, bkForce, bkInst = db.bountyKillSoundIdx or 2, db.bountyKillForceBG or false, db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay
 			if bkIdx == 2 then
 				local rIdx = math.random(3, #Ven.killSoundList)
-				Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, bkForce)
+				Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, bkForce, bkInst)
 			else
-				Ven.AlertPlaySound(Ven.killSoundList[bkIdx] and Ven.killSoundList[bkIdx].id, bkForce)
+				Ven.AlertPlaySound(Ven.killSoundList[bkIdx] and Ven.killSoundList[bkIdx].id, bkForce, bkInst)
 			end
 		end
 
@@ -534,7 +534,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 								if isPersWanted or isAcctWanted then
 									local wIdx = db.wantedSoundIdx or 3
 									if Ven.soundList and Ven.soundList[wIdx] then
-										Ven.AlertPlaySound(Ven.soundList[wIdx].id, db.wantedForceBG)
+										Ven.AlertPlaySound(Ven.soundList[wIdx].id, db.wantedForceBG, db.wantedInstPlay == nil and true or db.wantedInstPlay)
 									end
 									if db.enableToasts and Ven.ShowToast then
 										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
@@ -554,7 +554,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 								elseif isPersBounty or isAcctBounty then
 									local bIdx = db.bountySpottedSoundIdx or 4
 									if Ven.soundList and Ven.soundList[bIdx] then
-										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG)
+										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
 									end
 									if db.enableToasts and Ven.ShowToast then
 										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
@@ -574,7 +574,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 								elseif isNetWanted then
 									local wIdx = db.wantedSoundIdx or 3
 									if Ven.soundList and Ven.soundList[wIdx] then
-										Ven.AlertPlaySound(Ven.soundList[wIdx].id, db.wantedForceBG)
+										Ven.AlertPlaySound(Ven.soundList[wIdx].id, db.wantedForceBG, db.wantedInstPlay == nil and true or db.wantedInstPlay)
 									end
 									if db.enableToasts and Ven.ShowToast then
 										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
@@ -594,7 +594,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 								elseif isNetBounty and db.huntMode then
 									local bIdx = db.bountySpottedSoundIdx or 4
 									if Ven.soundList and Ven.soundList[bIdx] then
-										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG)
+										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
 									end
 									if db.enableToasts and Ven.ShowToast then
 										local cFile = Ven.playerCache[name] and Ven.playerCache[name].classFile or nil
@@ -725,7 +725,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 			if data.isAlly then
 				local fIdx = db.friendlySoundIdx or 14
 				if Ven.soundList and Ven.soundList[fIdx] then
-					Ven.AlertPlaySound(Ven.soundList[fIdx].id, db.friendlyForceBG)
+					Ven.AlertPlaySound(Ven.soundList[fIdx].id, db.friendlyForceBG, db.friendlyInstPlay or false)
 				end
 				local coloredName = GetClassColoredName(name, data.classFile, "|cff00ff00")
 				if db.enableToasts and Ven.ShowToast then
@@ -741,7 +741,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 			else
 				local tIdx = db.targetSoundIdx or 2
 				if Ven.soundList and Ven.soundList[tIdx] then
-					Ven.AlertPlaySound(Ven.soundList[tIdx].id, db.targetForceBG)
+					Ven.AlertPlaySound(Ven.soundList[tIdx].id, db.targetForceBG, db.targetInstPlay or false)
 				end
 				local coloredName = GetClassColoredName(name, data.classFile, "|cffff0000")
 				if db.enableToasts and Ven.ShowToast then
