@@ -46,8 +46,18 @@ local closeBtn = CreateFrame("Button", nil, f, "UIPanelCloseButton")
 closeBtn:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, -2)
 closeBtn:SetSize(22, 22)
 closeBtn:SetScript("OnClick", function()
-	Ven.isTrackerHidden = true
-	Ven.InitHeroDB().isTrackerHidden = true
+	Ven.trackerDismissed = true
+	Ven.dismissedTargets = Ven.dismissedTargets or {}
+	wipe(Ven.dismissedTargets)
+	if Ven.activeTargets then
+		for k in pairs(Ven.activeTargets) do Ven.dismissedTargets[k] = true end
+	end
+	if Ven.wantedLastSeen then
+		for k in pairs(Ven.wantedLastSeen) do Ven.dismissedTargets[k] = true end
+	end
+	if Ven.bountyLastSeen then
+		for k in pairs(Ven.bountyLastSeen) do Ven.dismissedTargets[k] = true end
+	end
 	f:Hide()
 end)
 
@@ -448,6 +458,33 @@ function Ven.UpdateTrackerUI()
 	table.sort(tList, function(a, b)
 		return a.data.lastSeen > b.data.lastSeen
 	end)
+
+	if Ven.trackerDismissed then
+		local hasNew = false
+		if Ven.dismissedTargets then
+			for _, v in ipairs(wList) do
+				if not Ven.dismissedTargets[v.name] then hasNew = true; break end
+			end
+			if not hasNew then
+				for _, v in ipairs(tList) do
+					if not Ven.dismissedTargets[v.name] then hasNew = true; break end
+				end
+			end
+		end
+		
+		if hasNew then
+			Ven.trackerDismissed = false
+			if Ven.dismissedTargets then wipe(Ven.dismissedTargets) end
+		elseif #wList == 0 and #tList == 0 then
+			Ven.trackerDismissed = false
+			if Ven.dismissedTargets then wipe(Ven.dismissedTargets) end
+			if not InCombatLockdown() then f:Hide() end
+			return
+		else
+			if not InCombatLockdown() then f:Hide() end
+			return
+		end
+	end
 
 	Ven.wantedOffset = math.min(Ven.wantedOffset, math.max(0, #wList - 3))
 	Ven.targetOffset = math.min(Ven.targetOffset, math.max(0, #tList - 5))
