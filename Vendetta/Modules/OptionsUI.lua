@@ -139,7 +139,7 @@ end
 local panel1 = CreateTab(1, "Target Tracking", 100, 12, 340)
 local panel2 = CreateTab(2, "Wanteds", 90, 115, 300)
 local panel3 = CreateTab(3, "Bounties", 110, 208, 400)
-local panel4 = CreateTab(4, "General", 80, 321, 360)
+local panel4 = CreateTab(4, "General", 80, 321, 420)
 
 local function SelectTab(id)
 	currentTab = id
@@ -504,7 +504,7 @@ CreateCheck(panel1, "Track Friendly Players Targeting You (Battlegrounds & Arena
 CreateCheck(panel1, "Include Party/Raid Members", "trackGroupMembers", -155, false)
 CreateHeader(panel1, "Audio Alerts", -195)
 CreateSoundDrop(panel1, "Enemy Targeting You:", "targetSoundIdx", "targetInstPlay", "targetForceBG", -220, 2, Ven.soundList, false)
-CreateSoundDrop(panel1, "Friendly Targeting You:", "friendlySoundIdx", "friendlyInstPlay", "friendlyForceBG", -285, 14, Ven.soundList, false)
+CreateSoundDrop(panel1, "Friendly Targeting You:", "friendlySoundIdx", "friendlyInstPlay", "friendlyForceBG", -285, 6, Ven.soundList, false)
 
 CreateHeader(panel2, "Radar Settings", -15)
 CreateCheck(panel2, "Track Wanted Players (Open World)", "trackWantedsWorld", -35, true)
@@ -514,7 +514,7 @@ CreateSoundDrop(panel2, "Wanted Player Spotted:", "wantedSoundIdx", "wantedInstP
 CreateSoundDrop(panel2, "Wanted Player Killed:", "wantedKillSoundIdx", "wantedKillInstPlay", "wantedKillForceBG", -195, 3, Ven.killSoundList, true)
 
 CreateHeader(panel3, "Bounty Network", -15)
-CreateCheck(panel3, "Enable Bounty Network", "enableNetwork", -35, false)
+CreateCheck(panel3, "Enable Bounty Network", "enableNetwork", -35, true)
 CreateCheck(panel3, "Track Bounties", "trackNetworkBounties", -65, true)
 CreateCheck(panel3, "Track Whitelist Wanteds", "trackNetworkWanteds", -95, true)
 
@@ -525,7 +525,7 @@ Ven.StyleFlatButton(openWlBtn)
 openWlBtn:SetText("Manage Whitelist")
 
 CreateHeader(panel3, "Audio Alerts", -190)
-CreateSoundDrop(panel3, "Network Bounty Spotted:", "bountySpottedSoundIdx", "bountySpottedInstPlay", "bountySpottedForceBG", -215, 4, Ven.soundList, true)
+CreateSoundDrop(panel3, "Network Bounty Spotted:", "bountySpottedSoundIdx", "bountySpottedInstPlay", "bountySpottedForceBG", -215, 10, Ven.soundList, true)
 CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyKillInstPlay", "bountyKillForceBG", -280, 3, Ven.killSoundList, true)
 CreateHeader(panel3, "Data Management", -345)
 local clearBountiesBtn = CreateFrame("Button", nil, panel3, "BackdropTemplate")
@@ -582,6 +582,86 @@ resetNotifBtn:SetScript("OnClick", function()
 end)
 
 CreateSlider(panel4, "Toast Duration (sec)", "toastDuration", -315, 2.0, 20.0, 0.5, 5.0)
+
+local resetAllBtn = CreateFrame("Button", nil, panel4, "BackdropTemplate")
+resetAllBtn:SetSize(180, 24)
+resetAllBtn:SetPoint("TOPRIGHT", -25, -380)
+Ven.StyleFlatButton(resetAllBtn)
+resetAllBtn:SetText("Reset Settings to Default")
+resetAllBtn:SetScript("OnClick", function()
+	Ven.Popups = Ven.Popups or {}
+	Ven.Popups["VENDETTA_CONFIRM_RESET_SETTINGS"] = {
+		button1 = "Yes",
+		button2 = "No",
+		OnShow = function(self)
+			Ven.SetPopupTitle("Are you sure you want to reset\nall settings to default?", nil, nil, "", "")
+			self:SetHeight(110)
+		end,
+		OnAccept = function()
+			local db = Ven.InitHeroDB()
+			
+			db.trackTargetsWorld = true
+			db.trackAlliesWorld = false
+			db.trackTargetsInst = true
+			db.trackAlliesInst = false
+			db.trackGroupMembers = false
+
+			db.targetSoundIdx = 2
+			db.targetInstPlay = false
+			db.targetForceBG = false
+
+			db.friendlySoundIdx = 6
+			db.friendlyInstPlay = false
+			db.friendlyForceBG = false
+
+			db.trackWantedsWorld = true
+			db.trackWantedsInst = true
+			db.wantedSoundIdx = 3
+			db.wantedInstPlay = true
+			db.wantedForceBG = false
+			db.wantedKillSoundIdx = 3
+			db.wantedKillInstPlay = true
+			db.wantedKillForceBG = false
+
+			db.enableNetwork = true
+			db.trackNetworkBounties = true
+			db.trackNetworkWanteds = true
+			db.bountySpottedSoundIdx = 10
+			db.bountySpottedInstPlay = true
+			db.bountySpottedForceBG = false
+			db.bountyKillSoundIdx = 3
+			db.bountyKillInstPlay = true
+			db.bountyKillForceBG = false
+
+			db.hideInCombat = false
+			db.trackInSafeZones = false
+			db.ignoreBGKills = true
+			db.ignoreArenaKills = true
+			db.useServerTime = true
+			db.hideMinimapBtn = false
+
+			db.enableToasts = true
+
+			Ven.isTrackerHidden = false
+			db.isTrackerHidden = false
+			
+			if Ven.ResetToastSettings then Ven.ResetToastSettings() end
+			
+			if VendettaOptionsFrame then 
+				local oldWasDBOpen = VendettaOptionsFrame.wasDBOpen
+				VendettaOptionsFrame.wasDBOpen = false
+				VendettaOptionsFrame:Hide()
+				VendettaOptionsFrame:Show()
+				VendettaOptionsFrame.wasDBOpen = oldWasDBOpen
+			end
+			
+			if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
+			if Ven.UpdateMinimapButtonPosition then Ven.UpdateMinimapButtonPosition() end
+			if Ven.RefreshDBView and Ven.DBFrame and Ven.DBFrame:IsShown() then Ven.RefreshDBView() end
+		end,
+	}
+	Ven.ShowPopup(Ven.Popups["VENDETTA_CONFIRM_RESET_SETTINGS"])
+end)
 
 
 local wlFrame = CreateFrame("Frame", "Ven_WhitelistFrame", UIParent, "BackdropTemplate")

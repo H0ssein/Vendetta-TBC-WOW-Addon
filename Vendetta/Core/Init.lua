@@ -39,6 +39,9 @@ initFrame:SetScript("OnEvent", function(self, event, loadedAddon)
 			db.toastX = 0
 			db.toastY = -90
 		end
+		if db.enableNetwork == nil then
+			db.enableNetwork = true
+		end
 		Ven.isTrackerHidden = db.isTrackerHidden or false
 	end
 end)

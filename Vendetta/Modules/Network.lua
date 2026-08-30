@@ -312,7 +312,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 									.. p2
 									.. "."
 							)
-							local sIdx = db.bountySpottedSoundIdx or 4
+							local sIdx = db.bountySpottedSoundIdx or 10
 							if Ven.soundList[sIdx] then
 								Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
 							end

@@ -552,7 +552,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 										)
 									end
 								elseif isPersBounty or isAcctBounty then
-									local bIdx = db.bountySpottedSoundIdx or 4
+									local bIdx = db.bountySpottedSoundIdx or 10
 									if Ven.soundList and Ven.soundList[bIdx] then
 										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
 									end
@@ -592,7 +592,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 										)
 									end
 								elseif isNetBounty and db.huntMode then
-									local bIdx = db.bountySpottedSoundIdx or 4
+									local bIdx = db.bountySpottedSoundIdx or 10
 									if Ven.soundList and Ven.soundList[bIdx] then
 										Ven.AlertPlaySound(Ven.soundList[bIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
 									end
@@ -723,7 +723,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 	for name, data in pairs(foundThisTick) do
 		if not Ven.activeTargets[name] then
 			if data.isAlly then
-				local fIdx = db.friendlySoundIdx or 14
+				local fIdx = db.friendlySoundIdx or 6
 				if Ven.soundList and Ven.soundList[fIdx] then
 					Ven.AlertPlaySound(Ven.soundList[fIdx].id, db.friendlyForceBG, db.friendlyInstPlay or false)
 				end
