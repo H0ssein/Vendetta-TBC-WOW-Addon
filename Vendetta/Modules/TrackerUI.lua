@@ -46,6 +46,10 @@ local closeBtn = CreateFrame("Button", nil, f, "UIPanelCloseButton")
 closeBtn:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, -2)
 closeBtn:SetSize(22, 22)
 closeBtn:SetScript("OnClick", function()
+	if InCombatLockdown() then
+		DEFAULT_CHAT_FRAME:AddMessage("|cFF880000Vendetta:|r Cannot close tracker during combat.")
+		return
+	end
 	Ven.trackerDismissed = true
 	Ven.dismissedTargets = Ven.dismissedTargets or {}
 	wipe(Ven.dismissedTargets)
