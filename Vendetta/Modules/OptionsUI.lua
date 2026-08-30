@@ -332,6 +332,42 @@ Ven_SoundMenu:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
 Ven_SoundMenu:SetFrameStrata("TOOLTIP")
 Ven_SoundMenu:Hide()
 
+Ven_SoundMenu.container = CreateFrame("Frame", nil, Ven_SoundMenu)
+Ven_SoundMenu.container:SetPoint("TOPLEFT", 5, -5)
+Ven_SoundMenu.container:SetPoint("BOTTOMRIGHT", -5, 5)
+Ven_SoundMenu.container:SetClipsChildren(true)
+
+local sBar = CreateFrame("Slider", nil, Ven_SoundMenu, "BackdropTemplate")
+sBar:SetWidth(10)
+sBar:SetPoint("TOPRIGHT", -3, -5)
+sBar:SetPoint("BOTTOMRIGHT", -3, 5)
+sBar:SetOrientation("VERTICAL")
+sBar:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+sBar:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+sBar:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+local thumb = sBar:CreateTexture(nil, "ARTWORK")
+thumb:SetSize(10, 16)
+thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
+thumb:SetVertexColor(0.7, 0.7, 0.7, 1)
+sBar:SetThumbTexture(thumb)
+Ven_SoundMenu.scrollBar = sBar
+
+sBar:SetScript("OnValueChanged", function(self, value)
+	Ven_SoundMenu.offset = math.floor(value + 0.5)
+	for i, btn in pairs(Ven_SoundMenu.buttons) do
+		btn:SetPoint("TOPLEFT", 0, -((i - 1 - Ven_SoundMenu.offset) * 16))
+	end
+end)
+
+Ven_SoundMenu:EnableMouseWheel(true)
+Ven_SoundMenu:SetScript("OnMouseWheel", function(self, delta)
+	if self.scrollBar:IsShown() then
+		local minV, maxV = self.scrollBar:GetMinMaxValues()
+		local current = self.scrollBar:GetValue()
+		self.scrollBar:SetValue(math.min(math.max(current - delta * 2, minV), maxV))
+	end
+end)
+
 Ven_SoundMenu:SetScript("OnUpdate", function(self)
 	if IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton") then
 		if not self:IsMouseOver() and not (self.currentDrop and self.currentDrop:IsMouseOver()) then
@@ -348,21 +384,31 @@ local function ToggleSoundMenu(dbKey, dropFrame, defaultIdx, soundList, forceCB,
 	end
 	Ven_SoundMenu.currentKey = dbKey
 	Ven_SoundMenu.currentDrop = dropFrame
-	Ven_SoundMenu:SetHeight(#soundList * 16 + 10)
+	
+	local displayCount = math.min(#soundList, 7)
+	Ven_SoundMenu:SetHeight(displayCount * 16 + 10)
+	
 	for _, btn in pairs(Ven_SoundMenu.buttons) do
 		btn:Hide()
 	end
+	
 	local currentSel = Ven.InitHeroDB()[dbKey] or defaultIdx
 	if not soundList[currentSel] then
 		currentSel = defaultIdx
 	end
+	
+	local numItems = #soundList
+	local targetOffset = 0
+	if numItems > 7 and currentSel > 7 then
+		targetOffset = math.min(currentSel - 7, numItems - 7)
+	end
+	Ven_SoundMenu.offset = targetOffset
 
 	for i, sData in ipairs(soundList) do
 		local btn = Ven_SoundMenu.buttons[i]
 		if not btn then
-			btn = CreateFrame("Button", nil, Ven_SoundMenu)
+			btn = CreateFrame("Button", nil, Ven_SoundMenu.container)
 			btn:SetSize(170, 16)
-			btn:SetPoint("TOPLEFT", 5, -5 - ((i - 1) * 16))
 			local hl = btn:CreateTexture(nil, "HIGHLIGHT")
 			hl:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
 			hl:SetBlendMode("ADD")
@@ -385,6 +431,8 @@ local function ToggleSoundMenu(dbKey, dropFrame, defaultIdx, soundList, forceCB,
 			Ven_SoundMenu.buttons[i] = btn
 		end
 		btn.txt:SetText(sData.name)
+		btn:SetPoint("TOPLEFT", 0, -((i - 1 - Ven_SoundMenu.offset) * 16))
+		
 		if i == currentSel then
 			btn.check:Show()
 		else
@@ -424,6 +472,21 @@ local function ToggleSoundMenu(dbKey, dropFrame, defaultIdx, soundList, forceCB,
 		end)
 		btn:Show()
 	end
+	
+	if numItems > 7 then
+		Ven_SoundMenu:SetWidth(195)
+		Ven_SoundMenu.container:SetPoint("BOTTOMRIGHT", -15, 5)
+		Ven_SoundMenu.scrollBar:SetMinMaxValues(0, numItems - 7)
+		Ven_SoundMenu.scrollBar:SetValue(targetOffset)
+		Ven_SoundMenu.scrollBar:Show()
+	else
+		Ven_SoundMenu:SetWidth(180)
+		Ven_SoundMenu.container:SetPoint("BOTTOMRIGHT", -5, 5)
+		Ven_SoundMenu.scrollBar:SetMinMaxValues(0, 0)
+		Ven_SoundMenu.scrollBar:SetValue(0)
+		Ven_SoundMenu.scrollBar:Hide()
+	end
+
 	Ven_SoundMenu:SetPoint("TOPLEFT", dropFrame, "BOTTOMLEFT", 15, 0)
 	Ven_SoundMenu:Show()
 end
