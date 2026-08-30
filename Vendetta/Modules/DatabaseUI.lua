@@ -575,6 +575,7 @@ scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
 end)
 scrollFrame:EnableMouseWheel(true)
 scrollFrame:SetScript("OnMouseWheel", HandleScroll)
+Ven.StyleScrollFrame(scrollFrame)
 
 local bLine = DBFrame:CreateTexture(nil, "BACKGROUND")
 bLine:SetSize(550, 1)

@@ -676,5 +676,181 @@ function Ven.ShowPlayerTooltip(ownerFrame, playerName)
 	else
 		GameTooltip:AddLine("No combat history found.", 0.5, 0.5, 0.5)
 	end
-	GameTooltip:Show()
+end
+
+function Ven.StyleScrollFrame(scrollFrame)
+	local sBar = scrollFrame.ScrollBar or _G[scrollFrame:GetName() .. "ScrollBar"]
+	if not sBar then
+		if scrollFrame:GetObjectType() == "Slider" then
+			sBar = scrollFrame
+		else
+			return
+		end
+	end
+	
+	local thumb = sBar:GetThumbTexture() or _G[sBar:GetName() .. "ThumbTexture"]
+	for _, tex in pairs({sBar:GetRegions()}) do
+		if tex:GetObjectType() == "Texture" and tex ~= thumb then
+			tex:SetTexture(nil)
+		end
+	end
+	
+	local upBtn = sBar.ScrollUpButton or _G[sBar:GetName() .. "ScrollUpButton"]
+	local downBtn = sBar.ScrollDownButton or _G[sBar:GetName() .. "ScrollDownButton"]
+	
+	local sBarBg = scrollFrame.ScrollBarBg
+	if not sBarBg then
+		sBar:ClearAllPoints()
+		if scrollFrame:GetObjectType() == "ScrollFrame" then
+			sBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 6, 0)
+			sBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 6, 0)
+		end
+		
+		if upBtn then
+			upBtn:ClearAllPoints()
+			upBtn:SetPoint("TOP", sBar, "TOP", 0, 0)
+		end
+		if downBtn then
+			downBtn:ClearAllPoints()
+			downBtn:SetPoint("BOTTOM", sBar, "BOTTOM", 0, 0)
+		end
+		
+		sBarBg = CreateFrame("Frame", nil, scrollFrame, "BackdropTemplate")
+		scrollFrame.ScrollBarBg = sBarBg
+		sBarBg:SetFrameLevel(math.max(1, sBar:GetFrameLevel() - 1))
+		sBarBg:SetPoint("TOPLEFT", sBar, "TOPLEFT", -1, 2)
+		sBarBg:SetPoint("BOTTOMRIGHT", sBar, "BOTTOMRIGHT", 1, -2)
+		sBarBg:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+		sBarBg:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+		sBarBg:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+	end
+	
+	if thumb then
+		thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
+		thumb:SetVertexColor(0.7, 0.7, 0.7, 1)
+		thumb:SetWidth(12)
+	end
+	
+	if upBtn then
+		upBtn:SetNormalTexture("")
+		upBtn:SetPushedTexture("")
+		upBtn:SetDisabledTexture("")
+		if upBtn:GetNormalTexture() then upBtn:GetNormalTexture():SetAlpha(0) end
+		if upBtn:GetPushedTexture() then upBtn:GetPushedTexture():SetAlpha(0) end
+		if upBtn:GetDisabledTexture() then upBtn:GetDisabledTexture():SetAlpha(0) end
+		
+		upBtn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+		if not upBtn.txt then
+			local t = upBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+			t:SetPoint("CENTER", 0, 1)
+			t:SetText("^")
+			t:SetTextColor(0.8, 0.8, 0.8)
+			upBtn.txt = t
+		end
+		
+		upBtn:SetScript("OnClick", function()
+			local minV, maxV = sBar:GetMinMaxValues()
+			sBar:SetValue(minV)
+		end)
+	end
+	
+	if downBtn then
+		downBtn:SetNormalTexture("")
+		downBtn:SetPushedTexture("")
+		downBtn:SetDisabledTexture("")
+		if downBtn:GetNormalTexture() then downBtn:GetNormalTexture():SetAlpha(0) end
+		if downBtn:GetPushedTexture() then downBtn:GetPushedTexture():SetAlpha(0) end
+		if downBtn:GetDisabledTexture() then downBtn:GetDisabledTexture():SetAlpha(0) end
+		
+		downBtn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+		if not downBtn.txt then
+			local t = downBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+			t:SetPoint("CENTER", 0, 1)
+			t:SetText("v")
+			t:SetTextColor(0.8, 0.8, 0.8)
+			downBtn.txt = t
+		end
+		
+		downBtn:SetScript("OnClick", function()
+			local minV, maxV = sBar:GetMinMaxValues()
+			sBar:SetValue(maxV)
+		end)
+	end
+	
+	local function UpdateScrollState()
+		local val, minV, maxV
+		
+		if scrollFrame.GetVerticalScrollRange then
+			local yrange = math.floor(scrollFrame:GetVerticalScrollRange() or 0)
+			val = math.floor(scrollFrame:GetVerticalScroll() or 0)
+			minV, maxV = 0, yrange
+		else
+			val = sBar:GetValue()
+			minV, maxV = sBar:GetMinMaxValues()
+		end
+		
+		if maxV == 0 then
+			sBar:SetAlpha(0)
+			sBar:Hide()
+			if scrollFrame.ScrollBarBg then scrollFrame.ScrollBarBg:Hide() end
+			if upBtn then upBtn:Hide() end
+			if downBtn then downBtn:Hide() end
+			if thumb then thumb:Hide() end
+		else
+			sBar:SetAlpha(1)
+			sBar:Show()
+			if scrollFrame.ScrollBarBg then scrollFrame.ScrollBarBg:Show() end
+			if upBtn then upBtn:Show() end
+			if downBtn then downBtn:Show() end
+			if thumb then thumb:Show() end
+			
+			if upBtn and upBtn.txt then
+				if val <= minV then
+					upBtn.txt:SetAlpha(0)
+					upBtn:EnableMouse(false)
+				else
+					upBtn.txt:SetAlpha(1)
+					upBtn:EnableMouse(true)
+				end
+			end
+			
+			if downBtn and downBtn.txt then
+				if val >= maxV - 1 then
+					downBtn.txt:SetAlpha(0)
+					downBtn:EnableMouse(false)
+				else
+					downBtn.txt:SetAlpha(1)
+					downBtn:EnableMouse(true)
+				end
+			end
+		end
+	end
+
+	if scrollFrame:GetObjectType() == "ScrollFrame" then
+		scrollFrame:HookScript("OnScrollRangeChanged", UpdateScrollState)
+		scrollFrame:HookScript("OnVerticalScroll", UpdateScrollState)
+		scrollFrame:HookScript("OnShow", UpdateScrollState)
+		scrollFrame:HookScript("OnSizeChanged", UpdateScrollState)
+	end
+	sBar:HookScript("OnValueChanged", UpdateScrollState)
+	sBar:HookScript("OnShow", UpdateScrollState)
+	
+	local function PassMouseWheel(self, delta)
+		if scrollFrame:GetObjectType() == "ScrollFrame" then
+			local func = scrollFrame:GetScript("OnMouseWheel")
+			if func then
+				func(scrollFrame, delta)
+			end
+		elseif scrollFrame:GetObjectType() == "Slider" then
+			local minV, maxV = sBar:GetMinMaxValues()
+			sBar:SetValue(math.min(math.max(sBar:GetValue() - (delta * 16), minV), maxV))
+		end
+	end
+	
+	sBar:EnableMouseWheel(true)
+	sBar:SetScript("OnMouseWheel", PassMouseWheel)
+	if sBarBg then
+		sBarBg:EnableMouseWheel(true)
+		sBarBg:SetScript("OnMouseWheel", PassMouseWheel)
+	end
 end

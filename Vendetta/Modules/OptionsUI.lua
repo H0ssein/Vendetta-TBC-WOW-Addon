@@ -100,33 +100,7 @@ local function CreateTab(id, name, width, xOffset, contentHeight)
 	scrollFrame:SetPoint("BOTTOMRIGHT", -30, 5)
 	scrollFrame:Hide()
 	
-	local function UpdateScrollState(self)
-		local yrange = self:GetVerticalScrollRange() or 0
-		local scrollBar = self.ScrollBar or _G[self:GetName() .. "ScrollBar"]
-		if scrollBar then
-			local upBtn = scrollBar.ScrollUpButton or _G[scrollBar:GetName() .. "ScrollUpButton"]
-			local downBtn = scrollBar.ScrollDownButton or _G[scrollBar:GetName() .. "ScrollDownButton"]
-			local thumb = scrollBar.ThumbTexture or _G[scrollBar:GetName() .. "ThumbTexture"]
-			
-			if math.floor(yrange) == 0 then
-				scrollBar:SetAlpha(0)
-				scrollBar:Hide()
-				if upBtn then upBtn:Hide() end
-				if downBtn then downBtn:Hide() end
-				if thumb then thumb:Hide() end
-			else
-				scrollBar:SetAlpha(1)
-				scrollBar:Show()
-				if upBtn then upBtn:Show() end
-				if downBtn then downBtn:Show() end
-				if thumb then thumb:Show() end
-			end
-		end
-	end
-
-	scrollFrame:HookScript("OnScrollRangeChanged", UpdateScrollState)
-	scrollFrame:HookScript("OnShow", UpdateScrollState)
-	scrollFrame:HookScript("OnSizeChanged", UpdateScrollState)
+	Ven.StyleScrollFrame(scrollFrame)
 
 	local panel = CreateFrame("Frame", nil, scrollFrame)
 	panel:SetSize(400, contentHeight or 300)
@@ -350,12 +324,58 @@ thumb:SetSize(10, 16)
 thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
 thumb:SetVertexColor(0.7, 0.7, 0.7, 1)
 sBar:SetThumbTexture(thumb)
+
+local upBtn = CreateFrame("Button", nil, sBar)
+upBtn:SetSize(10, 16)
+upBtn:SetPoint("TOP", sBar, "TOP", 0, 0)
+upBtn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+local ut = upBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+ut:SetPoint("CENTER", 0, 1)
+ut:SetText("^")
+ut:SetTextColor(0.8, 0.8, 0.8)
+upBtn.txt = ut
+upBtn:SetScript("OnClick", function()
+	local minV, maxV = sBar:GetMinMaxValues()
+	sBar:SetValue(minV)
+end)
+
+local downBtn = CreateFrame("Button", nil, sBar)
+downBtn:SetSize(10, 16)
+downBtn:SetPoint("BOTTOM", sBar, "BOTTOM", 0, 0)
+downBtn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+local dt = downBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+dt:SetPoint("CENTER", 0, 1)
+dt:SetText("v")
+dt:SetTextColor(0.8, 0.8, 0.8)
+downBtn.txt = dt
+downBtn:SetScript("OnClick", function()
+	local minV, maxV = sBar:GetMinMaxValues()
+	sBar:SetValue(maxV)
+end)
+
 Ven_SoundMenu.scrollBar = sBar
 
 sBar:SetScript("OnValueChanged", function(self, value)
 	Ven_SoundMenu.offset = math.floor(value + 0.5)
 	for i, btn in pairs(Ven_SoundMenu.buttons) do
 		btn:SetPoint("TOPLEFT", 0, -((i - 1 - Ven_SoundMenu.offset) * 16))
+	end
+	
+	local minV, maxV = self:GetMinMaxValues()
+	if value <= minV then
+		upBtn.txt:SetAlpha(0)
+		upBtn:EnableMouse(false)
+	else
+		upBtn.txt:SetAlpha(1)
+		upBtn:EnableMouse(true)
+	end
+	
+	if value >= maxV then
+		downBtn.txt:SetAlpha(0)
+		downBtn:EnableMouse(false)
+	else
+		downBtn.txt:SetAlpha(1)
+		downBtn:EnableMouse(true)
 	end
 end)
 
@@ -823,6 +843,7 @@ hNote:SetText("Whitelist Note")
 local wlScroll = CreateFrame("ScrollFrame", "VenWlScrollFrame", wlFrame, "FauxScrollFrameTemplate")
 wlScroll:SetPoint("TOPLEFT", 5, -105)
 wlScroll:SetPoint("BOTTOMRIGHT", -25, 10)
+Ven.StyleScrollFrame(wlScroll)
 
 local wlRows = {}
 for i = 1, 8 do
