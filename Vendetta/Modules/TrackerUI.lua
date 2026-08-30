@@ -8,7 +8,10 @@ f:SetMovable(true)
 f:EnableMouse(true)
 f:RegisterForDrag("LeftButton")
 f:SetScript("OnDragStart", f.StartMoving)
-f:SetScript("OnDragStop", f.StopMovingOrSizing)
+f:SetScript("OnDragStop", function(self)
+	self:StopMovingOrSizing()
+	if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
+end)
 f:SetResizable(true)
 f:SetResizeBounds(150, 40, 800, 600)
 f:Hide()
@@ -40,6 +43,7 @@ end)
 resizeBtn:SetScript("OnMouseUp", function()
 	f:StopMovingOrSizing()
 	Ven.InitHeroDB().trackerWidth = f:GetWidth()
+	if Ven.UpdateTrackerUI then Ven.UpdateTrackerUI() end
 end)
 
 local closeBtn = CreateFrame("Button", nil, f, "UIPanelCloseButton")
@@ -175,12 +179,15 @@ f:SetScript("OnSizeChanged", function(self)
 	end
 end)
 
+local btnContainer = CreateFrame("Frame", "VendettaSecureBtns", UIParent, "SecureHandlerStateTemplate")
+btnContainer:SetFrameStrata("HIGH")
+RegisterStateDriver(btnContainer, "visibility", "[combat] hide; show")
+
 for i = 1, 8 do
 	local row = CreateFrame("Frame", "VenRow" .. i, f)
 	row:SetHeight(25)
 	row:Hide()
-	row.secureBtn = CreateFrame("Button", nil, row, "SecureActionButtonTemplate")
-	row.secureBtn:SetAllPoints(row)
+	row.secureBtn = CreateFrame("Button", nil, btnContainer, "SecureActionButtonTemplate")
 	row.secureBtn:RegisterForClicks("AnyUp")
 	row.secureBtn:SetAttribute("type", "macro")
 	row.secureBtn:SetScript("OnEnter", RowOnEnter)
@@ -339,22 +346,6 @@ function Ven.UpdateTrackerUI()
 		if not data.isTargetingMe and (currentTick - data.lastSeen > 60) then
 			Ven.activeTargets[name] = nil
 		end
-	end
-
-	if InCombatLockdown() then
-		for i = 1, 8 do
-			local r = rows[i]
-			if r:IsShown() and r.targetName and not r.isWantedType then
-				local vData = Ven.activeTargets[r.targetName]
-				if vData then
-					local timeSinceSeen = currentTick - vData.lastSeen
-					r.timerText = vData.isTargetingMe and "|cFF00FF00(Active)|r"
-						or "|cFF888888(" .. math.floor(60 - timeSinceSeen) .. "s)|r"
-				end
-			end
-		end
-		f:GetScript("OnSizeChanged")(f)
-		return
 	end
 
 	wipe(wList)
@@ -551,6 +542,13 @@ function Ven.UpdateTrackerUI()
 		r:SetPoint("TOPRIGHT", f, "TOPRIGHT", -15, -25 - ((rowIdx - 1) * 25))
 		r:Show()
 		if not InCombatLockdown() then
+			r.secureBtn:ClearAllPoints()
+			local fLeft, fTop = f:GetLeft(), f:GetTop()
+			if fLeft and fTop then
+				r.secureBtn:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", fLeft + 10, fTop - 25 - ((rowIdx - 1) * 25))
+				r.secureBtn:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", fLeft + f:GetWidth() - 15, fTop - 25 - ((rowIdx - 1) * 25))
+			end
+			r.secureBtn:SetHeight(25)
 			r.secureBtn:SetAttribute("macrotext", "/targetexact " .. v.name)
 			r.secureBtn:Show()
 		end
@@ -612,6 +610,13 @@ function Ven.UpdateTrackerUI()
 		r:SetPoint("TOPRIGHT", f, "TOPRIGHT", -15, -25 - ((rowIdx - 1) * 25))
 		r:Show()
 		if not InCombatLockdown() then
+			r.secureBtn:ClearAllPoints()
+			local fLeft, fTop = f:GetLeft(), f:GetTop()
+			if fLeft and fTop then
+				r.secureBtn:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", fLeft + 10, fTop - 25 - ((rowIdx - 1) * 25))
+				r.secureBtn:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", fLeft + f:GetWidth() - 15, fTop - 25 - ((rowIdx - 1) * 25))
+			end
+			r.secureBtn:SetHeight(25)
 			r.secureBtn:SetAttribute("macrotext", "/targetexact " .. v.name)
 			r.secureBtn:Show()
 		end
