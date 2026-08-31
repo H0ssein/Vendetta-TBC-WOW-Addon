@@ -541,7 +541,7 @@ function Ven.UpdateTrackerUI()
 			r.secureBtn:ClearAllPoints()
 			local fLeft, fTop = f:GetLeft(), f:GetTop()
 			if fLeft and fTop then
-				r.secureBtn:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", fLeft + 10, fTop - 25 - ((rowIdx - 1) * 25))
+				r.secureBtn:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", fLeft + 40, fTop - 25 - ((rowIdx - 1) * 25))
 				r.secureBtn:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", fLeft + f:GetWidth() - 15, fTop - 25 - ((rowIdx - 1) * 25))
 			end
 			r.secureBtn:SetHeight(25)
@@ -609,7 +609,7 @@ function Ven.UpdateTrackerUI()
 			r.secureBtn:ClearAllPoints()
 			local fLeft, fTop = f:GetLeft(), f:GetTop()
 			if fLeft and fTop then
-				r.secureBtn:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", fLeft + 10, fTop - 25 - ((rowIdx - 1) * 25))
+				r.secureBtn:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", fLeft + 40, fTop - 25 - ((rowIdx - 1) * 25))
 				r.secureBtn:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", fLeft + f:GetWidth() - 15, fTop - 25 - ((rowIdx - 1) * 25))
 			end
 			r.secureBtn:SetHeight(25)
