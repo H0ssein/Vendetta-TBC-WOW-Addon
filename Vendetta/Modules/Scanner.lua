@@ -278,6 +278,7 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			if not Ven.ShouldIgnoreKills() then
 				RegisterKill(dName, destGUID)
 			end
+			recentDamageDealt[dName] = nil
 		elseif subevent == "UNIT_DIED" and isDestPlayer and destGUID ~= myGUID and dName ~= myName then
 			if dName and recentDamageDealt[dName] and (GetTime() - recentDamageDealt[dName].time < 15) then
 				if not Ven.ShouldIgnoreKills() then
