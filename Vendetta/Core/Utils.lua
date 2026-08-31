@@ -676,6 +676,7 @@ function Ven.ShowPlayerTooltip(ownerFrame, playerName)
 	else
 		GameTooltip:AddLine("No combat history found.", 0.5, 0.5, 0.5)
 	end
+	GameTooltip:Show()
 end
 
 function Ven.StyleScrollFrame(scrollFrame)
