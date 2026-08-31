@@ -230,6 +230,11 @@ for i = 1, 8 do
 			}
 		end
 		if Ven.DBFrame then
+			db.filterFaction = "ALL"
+			db.filterClass = "ALL"
+			db.filterLevel70Only = false
+			db.filterWantedOnly = false
+			db.showPersonalData = true
 			if not Ven.DBFrame:IsShown() then
 				Ven.DBFrame:Show()
 			end
