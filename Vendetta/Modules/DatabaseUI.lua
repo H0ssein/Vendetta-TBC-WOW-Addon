@@ -1397,6 +1397,15 @@ for i = 1, 10 do
 				Ven.UpdateTrackerUI()
 			end
 		else
+			if UnitLevel("player") < 20 then
+				local msg = "You must be at least level 20 to set a Bounty."
+				if Ven.ShowToast then
+					Ven.ShowToast(msg, "error")
+				else
+					print("|cFF00FFFF[Vendetta]|r |cFFFF0000" .. msg .. "|r")
+				end
+				return
+			end
 			Ven.ShowPopup(Ven.Popups["VENDETTA_SET_BOUNTY"], n)
 		end
 	end)

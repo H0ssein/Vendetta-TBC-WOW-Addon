@@ -143,7 +143,7 @@ end
 
 function Ven.QueueSyncMessages(destType)
 	local db = Ven.InitHeroDB()
-	if not db.enableNetwork or UnitLevel("player") < 20 then
+	if not db.enableNetwork then
 		return
 	end
 	local msgsB, msgsW = {}, {}
@@ -786,7 +786,7 @@ end
 
 function Ven.ManualChannelSync()
 	local db = Ven.InitHeroDB()
-	if not db.enableNetwork or UnitLevel("player") < 20 then
+	if not db.enableNetwork then
 		return
 	end
 	Ven.lastChannelSync = Ven.lastChannelSync or 0
