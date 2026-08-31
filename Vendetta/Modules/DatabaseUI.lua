@@ -290,6 +290,14 @@ Ven.Popups["VENDETTA_ADD_PLAYER"] = {
 }
 
 local DBFrame = CreateFrame("Frame", "VendettaDBFrame", UIParent, "BackdropTemplate")
+local origShow = DBFrame.Show
+DBFrame.Show = function(self)
+	if InCombatLockdown() then
+		print("|cFF00FFFF[Vendetta]|r |cFFFF0000Cannot open database during combat.|r")
+		return
+	end
+	origShow(self)
+end
 Ven.DBFrame = DBFrame
 DBFrame:SetSize(570, 360)
 DBFrame:SetPoint("CENTER")
