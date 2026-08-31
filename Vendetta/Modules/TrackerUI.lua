@@ -492,6 +492,7 @@ function Ven.UpdateTrackerUI()
 		local r, v = rows[rowIdx], wList[i]
 		r.isWantedType = true
 		r.targetName = v.name
+		r.secureBtn.targetName = v.name
 		local cColor = Ven.GetClassColor(v.data.classFile) or "|cFFFFFFFF"
 		r.nameText:SetText(cColor .. v.name .. "|r")
 
@@ -520,9 +521,15 @@ function Ven.UpdateTrackerUI()
 		r.lvlText = Ven.GetLevelColor(v.data.level)
 			.. ((v.data.level == -1) and "Boss/??" or (v.data.level or "?"))
 			.. "|r"
-		r.historyText = (v.isNetBounty or v.isNetWanted) and ""
-			or "[|cFF00FF00" .. (v.data.kills or 0) .. "|r-|cFFFF1A1A" .. (v.data.deaths or 0) .. "|r]"
-		r.noteText = (v.data.note and v.data.note ~= "") and "|cFF00FFFF[" .. v.data.note .. "]|r" or ""
+		if db[v.name] then
+			r.historyText = ((db[v.name].kills or 0) > 0 or (db[v.name].deaths or 0) > 0)
+					and "[|cFF00FF00" .. (db[v.name].kills or 0) .. "|r-|cFFFF1A1A" .. (db[v.name].deaths or 0) .. "|r]"
+				or ""
+			r.noteText = (db[v.name].note and db[v.name].note ~= "") and "|cFF00FFFF[" .. db[v.name].note .. "]|r" or ""
+		else
+			r.historyText = ""
+			r.noteText = ""
+		end
 		r.timerText = ""
 		r.armoryLink = "https://classic-armory.org/character/eu/tbc-anniversary/"
 			.. string.gsub(string.lower(GetRealmName() or ""), "[ ']", "-")
@@ -555,6 +562,7 @@ function Ven.UpdateTrackerUI()
 		local r, v = rows[rowIdx], tList[i]
 		r.isWantedType = false
 		r.targetName = v.name
+		r.secureBtn.targetName = v.name
 		local cColor = Ven.GetClassColor(v.data.classFile) or "|cFFFFFFFF"
 		r.nameText:SetText(cColor .. v.name .. "|r")
 
