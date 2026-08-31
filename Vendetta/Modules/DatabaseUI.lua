@@ -601,6 +601,10 @@ DBFrame:SetScript("OnShow", function()
 	Ven.RefreshDBView()
 end)
 
+DBFrame:SetScript("OnHide", function()
+	CloseDropDownMenus()
+end)
+
 local cachedSortedDB, cachedMergedDB = {}, {}
 
 function Ven.RefreshDBView()
