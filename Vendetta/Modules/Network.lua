@@ -277,7 +277,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 				end)
 			end
 		end
-	elseif event == "CHAT_MSG_WHISPER" then
+			elseif event == "CHAT_MSG_WHISPER" then
 		local msg, sender = ...
 		if string.find(msg, "VEN_SYS_MSG") then
 			local sName = string.match(sender, "([^%-]+)") or sender
@@ -337,10 +337,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 							end
 						end
 					end
-					if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-						Ven.RefreshDBView()
-					end
-				end
+end
 			elseif parts[2] == "KILL_REPORT" then
 				local target, kTimestamp, loc, hunterClass, killCount =
 					parts[3], tonumber(parts[4]) or time(), parts[5], parts[6], tonumber(parts[7]) or 1
@@ -456,7 +453,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 				end
 			end
 		end
-	elseif event == "CHAT_MSG_ADDON" then
+			elseif event == "CHAT_MSG_ADDON" then
 		local msgPrefix, msg, channel, sender = ...
 		if msgPrefix == prefix then
 			local sName = string.match(sender, "([^%-]+)")
@@ -478,7 +475,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 				)
 			end
 		end
-	elseif event == "CHAT_MSG_CHANNEL" then
+			elseif event == "CHAT_MSG_CHANNEL" then
 		local msg, sender, _, _, _, _, _, _, channelBaseName = ...
 		if channelBaseName and string.lower(channelBaseName) == string.lower(chanName) then
 			local sName = string.match(sender, "([^%-]+)")
@@ -529,10 +526,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				end
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "CLEAR_WANTED" and isWhitelisted then
+			elseif cmd == "CLEAR_WANTED" and isWhitelisted then
 		if Ven.WantedBoard then
 			for enemy, owners in pairs(Ven.WantedBoard) do
 				owners[sender] = nil
@@ -544,10 +538,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				end
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "W_SYNC_B" and db.huntMode then
+			elseif cmd == "W_SYNC_B" and db.huntMode then
 		local senderClass = p1
 		local packedData = p2
 		if not packedData then
@@ -582,10 +573,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				end
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "W_SYNC_W" and isWhitelisted then
+			elseif cmd == "W_SYNC_W" and isWhitelisted then
 		local senderClass = p1
 		local packedData = p2
 		if not packedData then
@@ -620,10 +608,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				end
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "UNWANTED" then
+			elseif cmd == "UNWANTED" then
 		if Ven.WantedBoard and Ven.WantedBoard[p1] then
 			Ven.WantedBoard[p1][sender] = nil
 			if not next(Ven.WantedBoard[p1]) then
@@ -633,10 +618,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				end
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "UNBOUNTY" then
+			elseif cmd == "UNBOUNTY" then
 		if Ven.BountyBoard and Ven.BountyBoard[p1] then
 			Ven.BountyBoard[p1][sender] = nil
 			if not next(Ven.BountyBoard[p1]) then
@@ -646,10 +628,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				end
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "BOUNTY" and db.huntMode then
+			elseif cmd == "BOUNTY" and db.huntMode then
 		local myFac = UnitFactionGroup("player")
 		if p2 ~= myFac then
 			Ven.BountyBoard[p1] = Ven.BountyBoard[p1] or {}
@@ -675,10 +654,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				Ven.SenderClasses[sender] = p7
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "WANTED" and isWhitelisted then
+			elseif cmd == "WANTED" and isWhitelisted then
 		local myFac = UnitFactionGroup("player")
 		if p2 ~= myFac then
 			Ven.WantedBoard[p1] = Ven.WantedBoard[p1] or {}
@@ -704,10 +680,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 				Ven.SenderClasses[sender] = p7
 			end
 		end
-		if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-			Ven.RefreshDBView()
-		end
-	elseif cmd == "SEEN" then
+			elseif cmd == "SEEN" then
 		if db[p1] and (db[p1].isWanted or db[p1].isBounty) then
 			local loc = p2
 			if p3 and p3 ~= "" and p3 ~= p2 then
@@ -718,10 +691,7 @@ function Ven.HandleNetworkMessage(cmd, sender, p1, p2, p3, p4, p5, p6, p7, p8)
 			end
 			db[p1].lastSeenLoc = loc
 			db[p1].lastSeenTime = time()
-			if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
-				Ven.RefreshDBView()
-			end
-		end
+end
 	end
 end
 
@@ -804,3 +774,5 @@ C_Timer.After(2, function()
 		Ven.DBFrame:HookScript("OnHide", Ven.ManualChannelSync)
 	end
 end)
+
+
