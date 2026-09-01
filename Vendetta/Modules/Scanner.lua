@@ -243,6 +243,12 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			end
 		end
 		wasDBVisibleBeforeCombat = false
+		if Ven.PendingCombatAlerts then
+			for _, alertFunc in ipairs(Ven.PendingCombatAlerts) do
+				alertFunc()
+			end
+			wipe(Ven.PendingCombatAlerts)
+		end
 		if Ven.UpdateTrackerUI then
 			Ven.UpdateTrackerUI()
 		end

@@ -312,34 +312,43 @@ f:SetScript("OnEvent", function(self, event, ...)
 							coloredTargetWithNote = coloredTarget .. " |cFF00FFFF[" .. displayNote .. "]|r"
 						end
 						
-						if db[p1].isBounty then
-							print(
-								"|cFF00FFFF[Vendetta]|r Bounty Hunter "
-									.. hunterLink
-									.. " has spotted your BOUNTY target: "
-									.. coloredTargetWithNote
-									.. " at "
-									.. p2
-									.. "."
-							)
-							local sIdx = db.bountySpottedSoundIdx or 10
-							if Ven.soundList[sIdx] then
-								Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
+						local function ProcessSpottedAlert()
+							if db[p1].isBounty then
+								print(
+									"|cFF00FFFF[Vendetta]|r Bounty Hunter "
+										.. hunterLink
+										.. " has spotted your BOUNTY target: "
+										.. coloredTargetWithNote
+										.. " at "
+										.. p2
+										.. "."
+								)
+								local sIdx = db.bountySpottedSoundIdx or 10
+								if Ven.soundList[sIdx] then
+									Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
+								end
+							else
+								print(
+									"|cFF00FFFF[Vendetta]|r Ally "
+										.. hunterLink
+										.. " has spotted your WANTED target: "
+										.. coloredTargetWithNote
+										.. " at "
+										.. p2
+										.. "."
+								)
+								local sIdx = db.wantedSoundIdx or 3
+								if Ven.soundList[sIdx] then
+									Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.wantedForceBG, db.wantedInstPlay == nil and true or db.wantedInstPlay)
+								end
 							end
+						end
+						
+						if InCombatLockdown() then
+							Ven.PendingCombatAlerts = Ven.PendingCombatAlerts or {}
+							table.insert(Ven.PendingCombatAlerts, ProcessSpottedAlert)
 						else
-							print(
-								"|cFF00FFFF[Vendetta]|r Ally "
-									.. hunterLink
-									.. " has spotted your WANTED target: "
-									.. coloredTargetWithNote
-									.. " at "
-									.. p2
-									.. "."
-							)
-							local sIdx = db.wantedSoundIdx or 3
-							if Ven.soundList[sIdx] then
-								Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.wantedForceBG, db.wantedInstPlay == nil and true or db.wantedInstPlay)
-							end
+							ProcessSpottedAlert()
 						end
 					end
 end
@@ -370,55 +379,64 @@ end
 
 				local pureLoc = string.gsub(loc or "Unknown", " %(Layer [^%)]+%)$", "")
 
-				if killCount > 1 then
-					print(
-						"|cFF00FFFF[Vendetta]|r Hunter "
-							.. hunterLink
-							.. " has executed your "
-							.. targetType
-							.. " target: "
-							.. coloredTargetWithNote
-							.. " |cFFFF0000"
-							.. killCount
-							.. " times|r! at "
-							.. pureLoc
-							.. suffixStr
-							.. "."
-					)
-				else
-					print(
-						"|cFF00FFFF[Vendetta]|r Hunter "
-							.. hunterLink
-							.. " has executed your "
-							.. targetType
-							.. " target: "
-							.. coloredTargetWithNote
-							.. " at "
-							.. pureLoc
-							.. suffixStr
-							.. "."
-					)
-				end
-				
-				if Ven.ShowToast then
-					local faction = Ven.playerCache[target] and Ven.playerCache[target].faction or nil
-					Ven.ShowToast(
-						targetType .. " EXECUTED!",
-						cColor .. sName .. "|r executed " .. coloredTarget .. " at " .. pureLoc,
-						hunterClass,
-						faction
-					)
+				local function ProcessKillReportAlert()
+					if killCount > 1 then
+						print(
+							"|cFF00FFFF[Vendetta]|r Hunter "
+								.. hunterLink
+								.. " has executed your "
+								.. targetType
+								.. " target: "
+								.. coloredTargetWithNote
+								.. " |cFFFF0000"
+								.. killCount
+								.. " times|r! at "
+								.. pureLoc
+								.. suffixStr
+								.. "."
+						)
+					else
+						print(
+							"|cFF00FFFF[Vendetta]|r Hunter "
+								.. hunterLink
+								.. " has executed your "
+								.. targetType
+								.. " target: "
+								.. coloredTargetWithNote
+								.. " at "
+								.. pureLoc
+								.. suffixStr
+								.. "."
+						)
+					end
+					
+					if Ven.ShowToast then
+						local faction = Ven.playerCache[target] and Ven.playerCache[target].faction or nil
+						Ven.ShowToast(
+							targetType .. " EXECUTED!",
+							cColor .. sName .. "|r executed " .. coloredTarget .. " at " .. pureLoc,
+							hunterClass,
+							faction
+						)
+					end
+
+					local isB = db[target] and db[target].isBounty
+					local kIdx = isB and (db.bountyKillSoundIdx or 2) or (db.wantedKillSoundIdx or 2)
+					local kForce = isB and (db.bountyKillForceBG or false) or (db.wantedKillForceBG or false)
+					local kInst = isB and (db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay) or (db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay)
+					if kIdx == 2 then
+						local rIdx = Ven.GetNonRepeatingRandom(3, #Ven.killSoundList, "killSound")
+						Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
+					elseif kIdx > 2 then
+						Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
+					end
 				end
 
-				local isB = db[target] and db[target].isBounty
-				local kIdx = isB and (db.bountyKillSoundIdx or 2) or (db.wantedKillSoundIdx or 2)
-				local kForce = isB and (db.bountyKillForceBG or false) or (db.wantedKillForceBG or false)
-				local kInst = isB and (db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay) or (db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay)
-				if kIdx == 2 then
-					local rIdx = Ven.GetNonRepeatingRandom(3, #Ven.killSoundList, "killSound")
-					Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
-				elseif kIdx > 2 then
-					Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
+				if InCombatLockdown() then
+					Ven.PendingCombatAlerts = Ven.PendingCombatAlerts or {}
+					table.insert(Ven.PendingCombatAlerts, ProcessKillReportAlert)
+				else
+					ProcessKillReportAlert()
 				end
 			elseif parts[2] == "ACK_KILL" then
 				local target = parts[3]
