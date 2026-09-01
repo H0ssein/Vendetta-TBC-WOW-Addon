@@ -355,6 +355,12 @@ end
 				local cFile = (Ven.playerCache[target] and Ven.playerCache[target].classFile) or (db[target] and db[target].classFile)
 				local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
 				local coloredTarget = tColor .. target .. "|r"
+				
+				local d = db[target] or {}
+				local displayNote = (d.note and d.note ~= "") and d.note or d.netNote
+				if displayNote and displayNote ~= "" then
+					coloredTarget = coloredTarget .. " |cFF00FFFF[" .. displayNote .. "]|r"
+				end
 
 				local pureLoc = string.gsub(loc or "Unknown", " %(Layer [^%)]+%)$", "")
 
