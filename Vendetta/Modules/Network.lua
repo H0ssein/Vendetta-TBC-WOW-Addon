@@ -323,9 +323,9 @@ f:SetScript("OnEvent", function(self, event, ...)
 										.. p2
 										.. "."
 								)
-								local sIdx = db.bountySpottedSoundIdx or 10
+								local sIdx = db.netSpottedSoundIdx or 10
 								if Ven.soundList[sIdx] then
-									Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.bountySpottedForceBG, db.bountySpottedInstPlay == nil and true or db.bountySpottedInstPlay)
+									Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.netSpottedForceBG, db.netSpottedInstPlay == nil and true or db.netSpottedInstPlay)
 								end
 							else
 								print(
@@ -337,9 +337,9 @@ f:SetScript("OnEvent", function(self, event, ...)
 										.. p2
 										.. "."
 								)
-								local sIdx = db.wantedSoundIdx or 3
+								local sIdx = db.netSpottedSoundIdx or 10
 								if Ven.soundList[sIdx] then
-									Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.wantedForceBG, db.wantedInstPlay == nil and true or db.wantedInstPlay)
+									Ven.AlertPlaySound(Ven.soundList[sIdx].id, db.netSpottedForceBG, db.netSpottedInstPlay == nil and true or db.netSpottedInstPlay)
 								end
 							end
 						end
@@ -420,10 +420,9 @@ end
 						)
 					end
 
-					local isB = db[target] and db[target].isBounty
-					local kIdx = isB and (db.bountyKillSoundIdx or 2) or (db.wantedKillSoundIdx or 2)
-					local kForce = isB and (db.bountyKillForceBG or false) or (db.wantedKillForceBG or false)
-					local kInst = isB and (db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay) or (db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay)
+					local kIdx = db.netKilledSoundIdx or 2
+					local kForce = db.netKilledForceBG or false
+					local kInst = db.netKilledInstPlay == nil and true or db.netKilledInstPlay
 					if kIdx == 2 then
 						local rIdx = Ven.GetNonRepeatingRandom(3, #Ven.killSoundList, "killSound")
 						Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)

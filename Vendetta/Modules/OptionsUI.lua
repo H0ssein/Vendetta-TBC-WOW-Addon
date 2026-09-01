@@ -112,7 +112,7 @@ end
 
 local panel1 = CreateTab(1, "Target Tracking", 100, 12, 340)
 local panel2 = CreateTab(2, "Wanteds", 90, 115, 300)
-local panel3 = CreateTab(3, "Bounties", 110, 208, 400)
+local panel3 = CreateTab(3, "Bounties", 110, 208, 550)
 local panel4 = CreateTab(4, "General", 80, 321, 420)
 
 local function SelectTab(id)
@@ -608,12 +608,14 @@ Ven.StyleFlatButton(openWlBtn)
 openWlBtn:SetText("Manage Whitelist")
 
 CreateHeader(panel3, "Audio Alerts", -190)
-CreateSoundDrop(panel3, "Network Bounty Spotted:", "bountySpottedSoundIdx", "bountySpottedInstPlay", "bountySpottedForceBG", -215, 10, Ven.soundList, true)
-CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyKillInstPlay", "bountyKillForceBG", -280, 2, Ven.killSoundList, true)
-CreateHeader(panel3, "Data Management", -345)
+CreateSoundDrop(panel3, "You Spotted a Bounty:", "bountySpottedSoundIdx", "bountySpottedInstPlay", "bountySpottedForceBG", -215, 10, Ven.soundList, true)
+CreateSoundDrop(panel3, "You Killed a Bounty:", "bountyKillSoundIdx", "bountyKillInstPlay", "bountyKillForceBG", -280, 2, Ven.killSoundList, true)
+CreateSoundDrop(panel3, "Others Spotted Your Bounty:", "netSpottedSoundIdx", "netSpottedInstPlay", "netSpottedForceBG", -345, 10, Ven.soundList, true)
+CreateSoundDrop(panel3, "Others Killed Your Bounty:", "netKilledSoundIdx", "netKilledInstPlay", "netKilledForceBG", -410, 2, Ven.killSoundList, true)
+CreateHeader(panel3, "Data Management", -475)
 local clearBountiesBtn = CreateFrame("Button", nil, panel3, "BackdropTemplate")
 clearBountiesBtn:SetSize(180, 22)
-clearBountiesBtn:SetPoint("TOPLEFT", 25, -365)
+clearBountiesBtn:SetPoint("TOPLEFT", 25, -495)
 Ven.StyleFlatButton(clearBountiesBtn)
 clearBountiesBtn:SetText("Clear Network Data")
 clearBountiesBtn:SetScript("OnClick", function()
@@ -715,6 +717,12 @@ resetAllBtn:SetScript("OnClick", function()
 			db.bountyKillSoundIdx = 2
 			db.bountyKillInstPlay = true
 			db.bountyKillForceBG = false
+			db.netSpottedSoundIdx = 10
+			db.netSpottedInstPlay = true
+			db.netSpottedForceBG = false
+			db.netKilledSoundIdx = 2
+			db.netKilledInstPlay = true
+			db.netKilledForceBG = false
 
 			db.hideInCombat = false
 			db.trackInSafeZones = false
