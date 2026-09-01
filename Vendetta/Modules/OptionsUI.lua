@@ -594,7 +594,7 @@ CreateCheck(panel2, "Track Wanted Players (Open World)", "trackWantedsWorld", -3
 CreateCheck(panel2, "Track Wanted Players (Battlegrounds/Arenas)", "trackWantedsInst", -65, true)
 CreateHeader(panel2, "Audio Alerts", -105)
 CreateSoundDrop(panel2, "Wanted Player Spotted:", "wantedSoundIdx", "wantedInstPlay", "wantedForceBG", -130, 3, Ven.soundList, true)
-CreateSoundDrop(panel2, "Wanted Player Killed:", "wantedKillSoundIdx", "wantedKillInstPlay", "wantedKillForceBG", -195, 3, Ven.killSoundList, true)
+CreateSoundDrop(panel2, "Wanted Player Killed:", "wantedKillSoundIdx", "wantedKillInstPlay", "wantedKillForceBG", -195, 2, Ven.killSoundList, true)
 
 CreateHeader(panel3, "Bounty Network", -15)
 CreateCheck(panel3, "Enable Bounty Network", "enableNetwork", -35, true)
@@ -609,7 +609,7 @@ openWlBtn:SetText("Manage Whitelist")
 
 CreateHeader(panel3, "Audio Alerts", -190)
 CreateSoundDrop(panel3, "Network Bounty Spotted:", "bountySpottedSoundIdx", "bountySpottedInstPlay", "bountySpottedForceBG", -215, 10, Ven.soundList, true)
-CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyKillInstPlay", "bountyKillForceBG", -280, 3, Ven.killSoundList, true)
+CreateSoundDrop(panel3, "Network Bounty Killed:", "bountyKillSoundIdx", "bountyKillInstPlay", "bountyKillForceBG", -280, 2, Ven.killSoundList, true)
 CreateHeader(panel3, "Data Management", -345)
 local clearBountiesBtn = CreateFrame("Button", nil, panel3, "BackdropTemplate")
 clearBountiesBtn:SetSize(180, 22)
@@ -702,7 +702,7 @@ resetAllBtn:SetScript("OnClick", function()
 			db.wantedSoundIdx = 3
 			db.wantedInstPlay = true
 			db.wantedForceBG = false
-			db.wantedKillSoundIdx = 3
+			db.wantedKillSoundIdx = 2
 			db.wantedKillInstPlay = true
 			db.wantedKillForceBG = false
 
@@ -712,7 +712,7 @@ resetAllBtn:SetScript("OnClick", function()
 			db.bountySpottedSoundIdx = 10
 			db.bountySpottedInstPlay = true
 			db.bountySpottedForceBG = false
-			db.bountyKillSoundIdx = 3
+			db.bountyKillSoundIdx = 2
 			db.bountyKillInstPlay = true
 			db.bountyKillForceBG = false
 

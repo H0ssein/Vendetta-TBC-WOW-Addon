@@ -855,3 +855,20 @@ function Ven.StyleScrollFrame(scrollFrame)
 		sBarBg:SetScript("OnMouseWheel", PassMouseWheel)
 	end
 end
+
+local lastRandoms = {}
+function Ven.GetNonRepeatingRandom(minVal, maxVal, key)
+	key = key or "default"
+	if maxVal - minVal <= 0 then
+		return minVal
+	end
+	
+	local nextIdx
+	repeat
+		nextIdx = math.random(minVal, maxVal)
+	until nextIdx ~= lastRandoms[key]
+	
+	lastRandoms[key] = nextIdx
+	return nextIdx
+end
+

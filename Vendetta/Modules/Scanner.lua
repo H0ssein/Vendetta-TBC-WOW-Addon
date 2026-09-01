@@ -131,9 +131,9 @@ local function RegisterKill(enemyName, enemyGUID)
 
 	local playedKillSound = false
 	if db[enemyName].isWanted then
-		local kIdx, kForce, kInst = db.wantedKillSoundIdx or 3, db.wantedKillForceBG or false, db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay
+		local kIdx, kForce, kInst = db.wantedKillSoundIdx or 2, db.wantedKillForceBG or false, db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay
 		if kIdx == 2 then
-			local rIdx = math.random(3, #Ven.killSoundList)
+			local rIdx = Ven.GetNonRepeatingRandom(3, #Ven.killSoundList, "killSound")
 			Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
 		else
 			Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
@@ -143,7 +143,7 @@ local function RegisterKill(enemyName, enemyGUID)
 	if db[enemyName].isBounty and not playedKillSound then
 		local kIdx, kForce, kInst = db.bountyKillSoundIdx or 2, db.bountyKillForceBG or false, db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay
 		if kIdx == 2 then
-			local rIdx = math.random(3, #Ven.killSoundList)
+			local rIdx = Ven.GetNonRepeatingRandom(3, #Ven.killSoundList, "killSound")
 			Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
 		else
 			Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
@@ -158,7 +158,7 @@ local function RegisterKill(enemyName, enemyGUID)
 		if not playedKillSound then
 			local bkIdx, bkForce, bkInst = db.bountyKillSoundIdx or 2, db.bountyKillForceBG or false, db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay
 			if bkIdx == 2 then
-				local rIdx = math.random(3, #Ven.killSoundList)
+				local rIdx = Ven.GetNonRepeatingRandom(3, #Ven.killSoundList, "killSound")
 				Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, bkForce, bkInst)
 			else
 				Ven.AlertPlaySound(Ven.killSoundList[bkIdx] and Ven.killSoundList[bkIdx].id, bkForce, bkInst)

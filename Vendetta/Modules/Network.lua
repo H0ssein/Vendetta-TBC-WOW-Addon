@@ -306,13 +306,18 @@ f:SetScript("OnEvent", function(self, event, ...)
 						local cFile = (Ven.playerCache[p1] and Ven.playerCache[p1].classFile) or (db[p1] and db[p1].classFile)
 						local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
 						local coloredTarget = tColor .. p1 .. "|r"
+						local displayNote = (db[p1].note and db[p1].note ~= "") and db[p1].note or db[p1].netNote
+						local coloredTargetWithNote = coloredTarget
+						if displayNote and displayNote ~= "" then
+							coloredTargetWithNote = coloredTarget .. " |cFF00FFFF[" .. displayNote .. "]|r"
+						end
 						
 						if db[p1].isBounty then
 							print(
 								"|cFF00FFFF[Vendetta]|r Bounty Hunter "
 									.. hunterLink
 									.. " has spotted your BOUNTY target: "
-									.. coloredTarget
+									.. coloredTargetWithNote
 									.. " at "
 									.. p2
 									.. "."
@@ -326,7 +331,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 								"|cFF00FFFF[Vendetta]|r Ally "
 									.. hunterLink
 									.. " has spotted your WANTED target: "
-									.. coloredTarget
+									.. coloredTargetWithNote
 									.. " at "
 									.. p2
 									.. "."
@@ -358,8 +363,9 @@ end
 				
 				local d = db[target] or {}
 				local displayNote = (d.note and d.note ~= "") and d.note or d.netNote
+				local coloredTargetWithNote = coloredTarget
 				if displayNote and displayNote ~= "" then
-					coloredTarget = coloredTarget .. " |cFF00FFFF[" .. displayNote .. "]|r"
+					coloredTargetWithNote = coloredTarget .. " |cFF00FFFF[" .. displayNote .. "]|r"
 				end
 
 				local pureLoc = string.gsub(loc or "Unknown", " %(Layer [^%)]+%)$", "")
@@ -371,7 +377,7 @@ end
 							.. " has executed your "
 							.. targetType
 							.. " target: "
-							.. coloredTarget
+							.. coloredTargetWithNote
 							.. " |cFFFF0000"
 							.. killCount
 							.. " times|r! at "
@@ -386,7 +392,7 @@ end
 							.. " has executed your "
 							.. targetType
 							.. " target: "
-							.. coloredTarget
+							.. coloredTargetWithNote
 							.. " at "
 							.. pureLoc
 							.. suffixStr
@@ -405,11 +411,11 @@ end
 				end
 
 				local isB = db[target] and db[target].isBounty
-				local kIdx = isB and (db.bountyKillSoundIdx or 3) or (db.wantedKillSoundIdx or 3)
+				local kIdx = isB and (db.bountyKillSoundIdx or 2) or (db.wantedKillSoundIdx or 2)
 				local kForce = isB and (db.bountyKillForceBG or false) or (db.wantedKillForceBG or false)
 				local kInst = isB and (db.bountyKillInstPlay == nil and true or db.bountyKillInstPlay) or (db.wantedKillInstPlay == nil and true or db.wantedKillInstPlay)
 				if kIdx == 2 then
-					local rIdx = math.random(3, #Ven.killSoundList)
+					local rIdx = Ven.GetNonRepeatingRandom(3, #Ven.killSoundList, "killSound")
 					Ven.AlertPlaySound(Ven.killSoundList[rIdx].id, kForce, kInst)
 				elseif kIdx > 2 then
 					Ven.AlertPlaySound(Ven.killSoundList[kIdx] and Ven.killSoundList[kIdx].id, kForce, kInst)
