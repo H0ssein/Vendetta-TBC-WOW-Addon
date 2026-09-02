@@ -607,6 +607,9 @@ DBFrame:SetScript("OnShow", function()
 	currentSort = "lastCombat"
 	sortAsc = false
 	Ven.RefreshDBView()
+	if Ven.BroadcastVersionToChannel then
+		Ven.BroadcastVersionToChannel()
+	end
 end)
 
 DBFrame:SetScript("OnHide", function()

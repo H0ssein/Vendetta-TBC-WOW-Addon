@@ -17,6 +17,7 @@ local prefix = "VEN_VER"
 local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("CHAT_MSG_ADDON")
+f:RegisterEvent("CHAT_MSG_CHANNEL")
 
 local lastWarningTime = 0
 local warningCooldown = 20 * 60
@@ -49,11 +50,23 @@ local function BroadcastVersion()
 	end
 end
 
+local lastChannelBroadcast = 0
+function Ven.BroadcastVersionToChannel()
+	local now = GetTime()
+	if now - lastChannelBroadcast < 3600 then return end
+	lastChannelBroadcast = now
+	
+	local id = GetChannelName("VenNetCom")
+	if id and id > 0 then
+		SendChatMessage(prefix .. "~" .. currentVersionStr, "CHANNEL", nil, id)
+	end
+end
+
 f:SetScript("OnEvent", function(self, event, ...)
 	if event == "PLAYER_ENTERING_WORLD" then
 		InitUpdateCheck()
-		C_Timer.After(10, BroadcastVersion)
-		C_Timer.NewTicker(1800, BroadcastVersion)
+		C_Timer.After(60, BroadcastVersion)
+		C_Timer.NewTicker(3600, BroadcastVersion)
 	elseif event == "CHAT_MSG_ADDON" then
 		local msgPrefix, msg, channel, sender = ...
 		if msgPrefix == prefix then
@@ -73,6 +86,31 @@ f:SetScript("OnEvent", function(self, event, ...)
 							.. msg
 							.. "). Please update your addon!|r"
 					)
+				end
+			end
+		end
+	elseif event == "CHAT_MSG_CHANNEL" then
+		local msg, sender = ...
+		if string.find(msg, "^" .. prefix .. "~") then
+			local _, ver = strsplit("~", msg)
+			if ver then
+				local sName = string.match(sender, "([^%-]+)")
+				if sName == UnitName("player") then
+					return
+				end
+
+				local receivedVerNum = ParseVersion(ver)
+
+				if receivedVerNum > currentVersionNum then
+					local now = GetTime()
+					if (now - lastWarningTime) > warningCooldown then
+						lastWarningTime = now
+						print(
+							"|cFFFF0000[Vendetta]|r |cFFFFFF00A new update is available (v"
+								.. ver
+								.. "). Please update your addon!|r"
+						)
+					end
 				end
 			end
 		end
