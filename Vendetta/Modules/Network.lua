@@ -89,6 +89,7 @@ function Ven.ProcessPendingBounties()
 		if killer == myName then
 			local count = data.count or 1
 			local kClass = data.killerClass or myClass
+			local pc = Ven.playerCache[data.target] or {}
 			local msg = "VEN_SYS_MSG~KILL_REPORT~"
 				.. data.target
 				.. "~"
@@ -99,6 +100,14 @@ function Ven.ProcessPendingBounties()
 				.. tostring(kClass)
 				.. "~"
 				.. tostring(count)
+				.. "~"
+				.. tostring(pc.level or "?")
+				.. "~"
+				.. tostring(pc.classFile or "?")
+				.. "~"
+				.. tostring(pc.race or "?")
+				.. "~"
+				.. tostring(pc.faction or "?")
 			Ven.recentSystemWhispers[string.lower(data.owner)] = GetTime()
 			SendChatMessage(msg, "WHISPER", nil, data.owner)
 		end
@@ -284,10 +293,36 @@ f:SetScript("OnEvent", function(self, event, ...)
 			local parts = { strsplit("~", msg) }
 			if parts[2] == "SEEN_WHISPER" then
 				local p1, p2, hunterClass = parts[3], parts[4], parts[5]
+				local tLvl, tClassFile, tRace, tFaction = parts[6], parts[7], parts[8], parts[9]
 				local db = Ven.InitHeroDB()
 				if db[p1] and (db[p1].isWanted or db[p1].isBounty) then
 					db[p1].lastSeenLoc = p2
 					db[p1].lastSeenTime = time()
+					
+					if tClassFile and tClassFile ~= "?" and tClassFile ~= "nil" then
+						db[p1].classFile = tClassFile
+						db[p1].level = (tLvl ~= "?" and tLvl ~= "nil") and tLvl or db[p1].level
+						db[p1].race = (tRace ~= "?" and tRace ~= "nil") and tRace or db[p1].race
+						db[p1].faction = (tFaction ~= "?" and tFaction ~= "nil") and tFaction or db[p1].faction
+						
+						Ven.playerCache[p1] = Ven.playerCache[p1] or {}
+						Ven.playerCache[p1].classFile = tClassFile
+						Ven.playerCache[p1].level = (tLvl ~= "?" and tLvl ~= "nil") and tLvl or Ven.playerCache[p1].level
+						Ven.playerCache[p1].race = (tRace ~= "?" and tRace ~= "nil") and tRace or Ven.playerCache[p1].race
+						Ven.playerCache[p1].faction = (tFaction ~= "?" and tFaction ~= "nil") and tFaction or Ven.playerCache[p1].faction
+						
+						if Ven.netCache then
+							Ven.netCache[p1] = Ven.netCache[p1] or {}
+							Ven.netCache[p1].classFile = tClassFile
+							Ven.netCache[p1].level = (tLvl ~= "?" and tLvl ~= "nil") and tLvl or Ven.netCache[p1].level
+							Ven.netCache[p1].race = (tRace ~= "?" and tRace ~= "nil") and tRace or Ven.netCache[p1].race
+							Ven.netCache[p1].faction = (tFaction ~= "?" and tFaction ~= "nil") and tFaction or Ven.netCache[p1].faction
+						end
+						
+						if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
+							Ven.RefreshDBView()
+						end
+					end
 
 					Ven.seenAlertCD = Ven.seenAlertCD or {}
 					Ven.seenZoneRecord = Ven.seenZoneRecord or {}
@@ -357,7 +392,36 @@ end
 			elseif parts[2] == "KILL_REPORT" then
 				local target, kTimestamp, loc, hunterClass, killCount =
 					parts[3], tonumber(parts[4]) or time(), parts[5], parts[6], tonumber(parts[7]) or 1
+				local tLvl, tClassFile, tRace, tFaction = parts[8], parts[9], parts[10], parts[11]
 				local db = Ven.InitHeroDB()
+				
+				if db[target] then
+					if tClassFile and tClassFile ~= "?" and tClassFile ~= "nil" then
+						db[target].classFile = tClassFile
+						db[target].level = (tLvl ~= "?" and tLvl ~= "nil") and tLvl or db[target].level
+						db[target].race = (tRace ~= "?" and tRace ~= "nil") and tRace or db[target].race
+						db[target].faction = (tFaction ~= "?" and tFaction ~= "nil") and tFaction or db[target].faction
+						
+						Ven.playerCache[target] = Ven.playerCache[target] or {}
+						Ven.playerCache[target].classFile = tClassFile
+						Ven.playerCache[target].level = (tLvl ~= "?" and tLvl ~= "nil") and tLvl or Ven.playerCache[target].level
+						Ven.playerCache[target].race = (tRace ~= "?" and tRace ~= "nil") and tRace or Ven.playerCache[target].race
+						Ven.playerCache[target].faction = (tFaction ~= "?" and tFaction ~= "nil") and tFaction or Ven.playerCache[target].faction
+						
+						if Ven.netCache then
+							Ven.netCache[target] = Ven.netCache[target] or {}
+							Ven.netCache[target].classFile = tClassFile
+							Ven.netCache[target].level = (tLvl ~= "?" and tLvl ~= "nil") and tLvl or Ven.netCache[target].level
+							Ven.netCache[target].race = (tRace ~= "?" and tRace ~= "nil") and tRace or Ven.netCache[target].race
+							Ven.netCache[target].faction = (tFaction ~= "?" and tFaction ~= "nil") and tFaction or Ven.netCache[target].faction
+						end
+						
+						if Ven.DBFrame and Ven.DBFrame:IsShown() and Ven.RefreshDBView then
+							Ven.RefreshDBView()
+						end
+					end
+				end
+
 				local ackMsg = "VEN_SYS_MSG~ACK_KILL~" .. target
 				Ven.recentSystemWhispers[string.lower(sName)] = GetTime()
 				SendChatMessage(ackMsg, "WHISPER", nil, sName)

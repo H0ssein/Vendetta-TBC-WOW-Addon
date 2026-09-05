@@ -662,6 +662,7 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 								if t - Ven.lastAutoWhisper > 15 then
 									local wCount = 0
 									local _, myClass = UnitClass("player")
+									local pc = Ven.playerCache[name] or {}
 									local function NotifyOwners(board)
 										if not board then
 											return
@@ -674,6 +675,14 @@ CreateFrame("Frame"):SetScript("OnUpdate", function(self, elapsed)
 													.. locStr
 													.. "~"
 													.. tostring(myClass)
+													.. "~"
+													.. tostring(pc.level or "?")
+													.. "~"
+													.. tostring(pc.classFile or "?")
+													.. "~"
+													.. tostring(pc.race or "?")
+													.. "~"
+													.. tostring(pc.faction or "?")
 												Ven.recentSystemWhispers = Ven.recentSystemWhispers or {}
 												Ven.recentSystemWhispers[string.lower(owner)] = GetTime()
 												SendChatMessage(msg, "WHISPER", nil, owner)
