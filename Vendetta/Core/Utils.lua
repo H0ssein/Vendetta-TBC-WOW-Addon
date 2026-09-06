@@ -66,11 +66,13 @@ local classCoords = {
 	["PALADIN"] = { 0, 0.25, 0.5, 0.75 },
 }
 
-function Ven.GetClassIcon(classFile)
+function Ven.GetClassIcon(classFile, size)
+	size = size or 16
 	if classFile and classCoords[classFile] then
 		local c = classCoords[classFile]
 		return string.format(
-			"|TInterface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES:16:16:0:0:256:256:%d:%d:%d:%d|t",
+			"|TInterface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES:%d:%d:0:0:256:256:%d:%d:%d:%d|t",
+			size, size,
 			c[1] * 256,
 			c[2] * 256,
 			c[3] * 256,

@@ -336,12 +336,12 @@ f:SetScript("OnEvent", function(self, event, ...)
 						Ven.seenZoneRecord[p1] = pureZone
 
 						local cColor = Ven.GetClassColor(hunterClass) or "|cFF00FF00"
-						local hunterIcon = hunterClass and Ven.GetClassIcon(hunterClass) .. " " or ""
+						local hunterIcon = hunterClass and Ven.GetClassIcon(hunterClass, 12) .. " " or ""
 						local hunterLink = hunterIcon .. "|Hplayer:" .. sName .. "|h" .. cColor .. "[" .. sName .. "]|r|h"
 						
 						local cFile = (Ven.playerCache[p1] and Ven.playerCache[p1].classFile) or (db[p1] and db[p1].classFile)
 						local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
-						local targetIcon = cFile and Ven.GetClassIcon(cFile) .. " " or ""
+						local targetIcon = cFile and Ven.GetClassIcon(cFile, 12) .. " " or ""
 						local coloredTarget = targetIcon .. tColor .. p1 .. "|r"
 						local displayNote = (db[p1].note and db[p1].note ~= "") and db[p1].note or db[p1].netNote
 						local coloredTargetWithNote = coloredTarget
@@ -429,13 +429,13 @@ end
 				local timeStr = Ven.FormatTimeStr(kTimestamp, "relative")
 				local suffixStr = timeStr ~= "" and " (Killed" .. timeStr .. ")" or ""
 				local cColor = Ven.GetClassColor(hunterClass) or "|cFF00FF00"
-				local hunterIcon = hunterClass and Ven.GetClassIcon(hunterClass) .. " " or ""
+				local hunterIcon = hunterClass and Ven.GetClassIcon(hunterClass, 12) .. " " or ""
 				local hunterLink = hunterIcon .. "|Hplayer:" .. sName .. "|h" .. cColor .. "[" .. sName .. "]|r|h"
 				local targetType = (db[target] and db[target].isBounty) and "BOUNTY" or "WANTED"
 				
 				local cFile = (Ven.playerCache[target] and Ven.playerCache[target].classFile) or (db[target] and db[target].classFile)
 				local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
-				local targetIcon = cFile and Ven.GetClassIcon(cFile) .. " " or ""
+				local targetIcon = cFile and Ven.GetClassIcon(cFile, 12) .. " " or ""
 				local coloredTarget = targetIcon .. tColor .. target .. "|r"
 				
 				local d = db[target] or {}
@@ -518,11 +518,11 @@ end
 							local timeStr = Ven.FormatTimeStr(pData.timestamp or time(), "relative")
 							local oClass = Ven.SenderClasses and Ven.SenderClasses[sName]
 							local oColor = Ven.GetClassColor(oClass) or "|cFF00FF00"
-							local ownerIcon = oClass and Ven.GetClassIcon(oClass) .. " " or ""
+							local ownerIcon = oClass and Ven.GetClassIcon(oClass, 12) .. " " or ""
 							local ownerLink = ownerIcon .. "|Hplayer:" .. sName .. "|h" .. oColor .. "[" .. sName .. "]|r|h"
 							local cFile = Ven.playerCache[target] and Ven.playerCache[target].classFile or nil
 							local tColor = cFile and Ven.GetClassColor(cFile) or "|cFFFF0000"
-							local targetIcon = cFile and Ven.GetClassIcon(cFile) .. " " or ""
+							local targetIcon = cFile and Ven.GetClassIcon(cFile, 12) .. " " or ""
 							local coloredTarget = targetIcon .. tColor .. target .. "|r"
 							if kCount > 1 then
 								print(
