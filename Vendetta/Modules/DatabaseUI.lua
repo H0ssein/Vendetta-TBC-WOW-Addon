@@ -68,6 +68,11 @@ Ven.Popups["VENDETTA_CONFIRM_DELETE"] = {
 				end
 			end
 		end
+		
+		if Ven.playerCache and Ven.playerCache[data] then
+			Ven.playerCache[data] = nil
+		end
+		
 		if Ven.DBFrame:IsShown() then
 			Ven.RefreshDBView()
 		end
