@@ -67,6 +67,7 @@ closeBtn:SetScript("OnClick", function()
 		for k in pairs(Ven.bountyLastSeen) do Ven.dismissedTargets[k] = true end
 	end
 	f:Hide()
+	for i = 1, 8 do Ven.TrackerRows[i].secureBtn:Hide() end
 end)
 
 local openListBtn = CreateFrame("Button", nil, f)
@@ -319,6 +320,9 @@ function Ven.UpdateTrackerUI()
 
 	if isPvEInst or Ven.isTrackerHidden then
 		f:Hide()
+		if not InCombatLockdown() then
+			for i = 1, 8 do rows[i].secureBtn:Hide() end
+		end
 		return
 	end
 	if db.hideInCombat and InCombatLockdown() then
@@ -339,6 +343,9 @@ function Ven.UpdateTrackerUI()
 		and db.trackNetworkWanteds == false
 	then
 		f:Hide()
+		if not InCombatLockdown() then
+			for i = 1, 8 do rows[i].secureBtn:Hide() end
+		end
 		return
 	end
 
@@ -474,10 +481,16 @@ function Ven.UpdateTrackerUI()
 		elseif #wList == 0 and #tList == 0 then
 			Ven.trackerDismissed = false
 			if Ven.dismissedTargets then wipe(Ven.dismissedTargets) end
-			if not InCombatLockdown() then f:Hide() end
+			if not InCombatLockdown() then 
+				f:Hide() 
+				for i = 1, 8 do rows[i].secureBtn:Hide() end
+			end
 			return
 		else
-			if not InCombatLockdown() then f:Hide() end
+			if not InCombatLockdown() then 
+				f:Hide() 
+				for i = 1, 8 do rows[i].secureBtn:Hide() end
+			end
 			return
 		end
 	end
