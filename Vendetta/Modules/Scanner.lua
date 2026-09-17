@@ -253,7 +253,9 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			Ven.UpdateTrackerUI()
 		end
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		local _, subevent, _, sourceGUID, sourceName, _, _, destGUID, destName = CombatLogGetCurrentEventInfo()
+		local _, subevent, _, sourceGUID, sourceName, _, _, destGUID, destName, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
+		
+
 		local isSourcePlayer, isDestPlayer =
 			sourceGUID and string.match(sourceGUID, "^Player%-"), destGUID and string.match(destGUID, "^Player%-")
 		local myGUID, myName = UnitGUID("player"), UnitName("player")
@@ -286,6 +288,9 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 			end
 			recentDamageDealt[dName] = nil
 		elseif subevent == "UNIT_DIED" and isDestPlayer and destGUID ~= myGUID and dName ~= myName then
+			if Ven.playerCache and Ven.playerCache[dName] and Ven.playerCache[dName].classFile == "HUNTER" then
+				return
+			end
 			if dName and recentDamageDealt[dName] and (GetTime() - recentDamageDealt[dName].time < 15) then
 				if not Ven.ShouldIgnoreKills() then
 					RegisterKill(dName, recentDamageDealt[dName].guid)
@@ -370,7 +375,7 @@ combatLogFrame:SetScript("OnEvent", function(self, event, ...)
 					end
 				end
 			end
-			-- Clean up ghost entries that were previously injected by the old syncing logic
+			
 			local reservedKeys = {
 				showPersonalData = true,
 				showAccountWide = true,
