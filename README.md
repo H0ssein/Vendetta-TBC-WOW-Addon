@@ -39,3 +39,7 @@ Vendetta is designed to be simple, tactical, and deadly:
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+
+[![Crypto donation button by NOWPayments](https://nowpayments.io/images/embeds/donation-button-black.svg)](https://nowpayments.io/donation/mrajax)
+
